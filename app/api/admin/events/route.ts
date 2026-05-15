@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
   const { slots: slotInputs, ...eventData } = parsed.data
-  const event = await createEvent(eventData)
+  const event = await createEvent({ ...eventData, image_url: null })
   await createSlots(slotInputs.map(s => ({ event_id: event.id, ...s, capacity: 12 })))
   return NextResponse.json(event, { status: 201 })
 }
