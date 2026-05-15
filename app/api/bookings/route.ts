@@ -1,0 +1,45 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { createPendingBooking } from '@/lib/db/bookings'
+import { getSlotById, getSlotsByEventId } from '@/lib/db/slots'
+import { getEventById } from '@/lib/db/events'
+import { createCheckoutSession } from '@/lib/stripe'
+
+const schema = z.object({
+  slot_id: z.string().uuid(),
+  name: z.string().min(1),
+  email: z.string().email(),
+  spaces: z.number().int().min(1).max(12),
+  waiver_accepted: z.literal(true),
+})
+
+export async function POST(req: NextRequest) {
+  const parsed = schema.safeParse(await req.json())
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
+
+  const { slot_id, name, email, spaces, waiver_accepted } = parsed.data
+  const slot = await getSlotById(slot_id)
+  const event = await getEventById(slot.event_id)
+
+  const slotsWithAvailability = await getSlotsByEventId(slot.event_id)
+  const slotAvail = slotsWithAvailability.find(s => s.id === slot_id)
+  if (!slotAvail || slotAvail.available_spaces < spaces) {
+    return NextResponse.json({ error: 'Not enough spaces available' }, { status: 409 })
+  }
+
+  const booking = await createPendingBooking({ slot_id, name, email, spaces, waiver_accepted })
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!
+  const checkoutUrl = await createCheckoutSession({
+    bookingId: booking.id,
+    eventTitle: event.title,
+    eventDate: event.date,
+    spaces,
+    pricePence: event.price_pence,
+    customerEmail: email,
+    successUrl: `${siteUrl}/booking/success?booking_id=${booking.id}`,
+    cancelUrl: `${siteUrl}/events/${event.id}`,
+  })
+
+  return NextResponse.json({ checkoutUrl })
+}
