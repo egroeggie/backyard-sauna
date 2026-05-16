@@ -22,15 +22,28 @@ export function BookingForm({ slots, eventId }: { slots: SlotWithAvailability[];
     if (!selectedSlotId) { setError('Please select a time slot.'); return }
     setLoading(true); setError(null)
 
-    const res = await fetch('/api/bookings', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slot_id: selectedSlotId, name, email, spaces, waiver_accepted: true }),
-    })
-    const data = await res.json()
-
-    if (!res.ok) { setError(data.error ?? 'Something went wrong.'); setLoading(false); return }
-    router.push(data.checkoutUrl)
+    try {
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slot_id: selectedSlotId, name, email, spaces, waiver_accepted: true }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setError(typeof data.error === 'string' ? data.error : 'Something went wrong.')
+        setLoading(false)
+        return
+      }
+      if (!data.checkoutUrl) {
+        setError('No payment URL returned. Please try again.')
+        setLoading(false)
+        return
+      }
+      window.location.href = data.checkoutUrl
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Network error — please try again.')
+      setLoading(false)
+    }
   }
 
   return (
