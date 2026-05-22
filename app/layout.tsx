@@ -1,8 +1,9 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Dokdo } from 'next/font/google'
 import './globals.css'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const dokdo = Dokdo({ subsets: ['latin'], weight: '400', variable: '--font-dokdo' })
 
 export const metadata: Metadata = {
   title: 'Backyard Sauna',
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={`${inter.variable} ${dokdo.variable} ${inter.className}`}>{children}</body>
     </html>
   )
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
-import { updateEvent } from '@/lib/db/events'
+import { updateEvent, deleteEvent } from '@/lib/db/events'
 
 const schema = z.object({
   title: z.string().min(1).optional(),
@@ -17,10 +17,24 @@ async function isAdmin() {
   return !!session
 }
 
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!await isAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { id } = await params
+  const { getEventById } = await import('@/lib/db/events')
+  return NextResponse.json(await getEventById(id))
+}
+
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!await isAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const { id } = await params
   const parsed = schema.safeParse(await req.json())
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   return NextResponse.json(await updateEvent(id, parsed.data))
+}
+
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!await isAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { id } = await params
+  await deleteEvent(id)
+  return new NextResponse(null, { status: 204 })
 }

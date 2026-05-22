@@ -2,6 +2,8 @@ import { notFound } from 'next/navigation'
 import { getEventById } from '@/lib/db/events'
 import { getSlotsByEventId } from '@/lib/db/slots'
 import { BookingForm } from '@/components/BookingForm'
+import { NavBar } from '@/components/NavBar'
+import Link from 'next/link'
 
 export const revalidate = 30
 
@@ -18,15 +20,27 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
   })
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-12">
-      <a href="/" className="text-sm text-gray-500 hover:underline mb-4 inline-block">← All events</a>
-      {event.image_url && <img src={event.image_url} alt={event.title} className="w-full h-64 object-cover rounded-lg mb-6" />}
-      <h1 className="text-3xl font-bold text-[#1A1A2E] mb-1">{event.title}</h1>
-      <p className="text-gray-600 mb-1">{date}</p>
-      <p className="text-gray-600 mb-4">{event.location}</p>
-      <p className="font-medium text-[#E94560] mb-6">£{price} per person</p>
-      <p className="text-gray-700 mb-8 leading-relaxed">{event.description}</p>
-      <BookingForm slots={slots} eventId={id} />
-    </main>
+    <div className="min-h-screen bg-[#1f3e2a] pb-[90px]">
+      <div className="max-w-[440px] mx-auto px-6 pt-8 flex flex-col gap-6">
+        <Link href="/events" className="text-[#edea5a] opacity-70 hover:opacity-100 transition-opacity">←</Link>
+
+        <h1 className="font-display text-[#edea5a] text-4xl text-center">{event.title}</h1>
+
+        {event.image_url && (
+          <img src={event.image_url} alt={event.title} className="w-full h-52 object-cover rounded-lg opacity-90" />
+        )}
+
+        <div className="bg-[rgba(178,254,255,0.08)] border border-[#edea5a]/40 rounded-[10px] p-4 flex flex-col gap-2">
+          <p className="text-[#edea5a] font-light">{date}</p>
+          <p className="text-[#edea5a] font-light">{event.location}</p>
+          <p className="text-[#edea5a] font-light">£{price} per person</p>
+        </div>
+
+        <p className="text-[#edea5a] font-light leading-relaxed">{event.description}</p>
+
+        <BookingForm slots={slots} eventId={id} />
+      </div>
+      <NavBar />
+    </div>
   )
 }

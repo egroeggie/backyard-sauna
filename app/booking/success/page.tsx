@@ -1,13 +1,22 @@
 import Link from 'next/link'
+import { NavBar } from '@/components/NavBar'
 
 export default function BookingSuccessPage() {
   return (
-    <main className="max-w-lg mx-auto px-4 py-16 text-center">
-      <div className="text-5xl mb-4">🎉</div>
-      <h1 className="text-3xl font-bold text-[#1A1A2E] mb-4">You&apos;re booked in.</h1>
-      <p className="text-gray-600 mb-2">Check your email — we&apos;ve sent your booking confirmation and waiver link(s).</p>
-      <p className="text-gray-600 mb-8">Make sure everyone in your group signs their waiver before the day.</p>
-      <Link href="/" className="text-[#E94560] underline text-sm">← Back to events</Link>
-    </main>
+    <div className="min-h-screen bg-[#1f3e2a] flex flex-col items-center justify-center pb-[70px] px-6 text-center">
+      <div className="max-w-[440px] w-full flex flex-col items-center gap-6">
+        <div className="text-5xl">🌿</div>
+        <h1 className="font-display text-[#edea5a] text-4xl">You&apos;re booked in.</h1>
+        <p className="text-[#edea5a] font-light">Check your email — we&apos;ve sent your booking confirmation and waiver link(s).</p>
+        <p className="text-[#edea5a] font-light">Make sure everyone in your group signs their waiver before the day.</p>
+        <Link
+          href="/events"
+          className="mt-4 bg-[#edea5a] text-[#1f3e2a] font-semibold px-8 py-3 rounded-[10px] hover:opacity-90 transition-opacity"
+        >
+          ← Back to events
+        </Link>
+      </div>
+      <NavBar />
+    </div>
   )
 }

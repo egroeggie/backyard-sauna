@@ -14,7 +14,7 @@ const schema = z.object({
   slots: z.array(z.object({
     start_time: z.string().regex(/^\d{2}:\d{2}$/),
     end_time: z.string().regex(/^\d{2}:\d{2}$/),
-  })).length(7),
+  })).min(1),
 })
 
 async function isAdmin() {

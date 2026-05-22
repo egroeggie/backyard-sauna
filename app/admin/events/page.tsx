@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { getAllEvents } from '@/lib/db/events'
+import { DeleteEventButton } from '@/components/DeleteEventButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,7 +15,7 @@ export default async function AdminEventsPage() {
           + New event
         </Link>
       </div>
-      {events.length === 0 ? <p className="text-gray-500">No events yet.</p> : (
+      {events.length === 0 ? <p>No events yet.</p> : (
         <table className="w-full text-sm border rounded-lg overflow-hidden">
           <thead className="bg-gray-100">
             <tr>
@@ -35,7 +36,11 @@ export default async function AdminEventsPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <Link href={`/admin/events/${event.id}`} className="text-[#E94560] hover:underline">View bookings</Link>
+                  <div className="flex gap-3 items-center">
+                    <Link href={`/admin/events/${event.id}`} className="text-[#E94560] hover:underline">Bookings</Link>
+                    <Link href={`/admin/events/${event.id}/edit`} className="hover:underline">Edit</Link>
+                    <DeleteEventButton id={event.id} />
+                  </div>
                 </td>
               </tr>
             ))}

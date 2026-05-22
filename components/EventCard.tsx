@@ -8,15 +8,18 @@ export function EventCard({ event }: { event: Event }) {
   const price = (event.price_pence / 100).toFixed(0)
 
   return (
-    <Link href={`/events/${event.id}`} className="block border rounded-lg overflow-hidden hover:shadow-md transition-shadow">
+    <Link
+      href={`/events/${event.id}`}
+      className="block bg-[rgba(178,254,255,0.1)] border-2 border-[#edea5a] rounded-[10px] p-4 shadow-[0px_4px_4px_0px_rgba(0,0,0,0.2)] hover:bg-[rgba(178,254,255,0.15)] transition-colors"
+    >
       {event.image_url && (
-        <img src={event.image_url} alt={event.title} className="w-full h-48 object-cover" />
+        <img src={event.image_url} alt={event.title} className="w-full h-40 object-cover rounded-lg mb-4 opacity-90" />
       )}
-      <div className="p-4">
-        <h2 className="text-xl font-semibold text-[#1A1A2E]">{event.title}</h2>
-        <p className="text-gray-600 mt-1">{date}</p>
-        <p className="text-gray-600">{event.location}</p>
-        <p className="mt-2 font-medium text-[#E94560]">From £{price} per person</p>
+      <div className="flex flex-col gap-2">
+        <h2 className="text-[#edea5a] font-medium text-xl">{event.title}</h2>
+        <p className="text-[#edea5a] font-light text-base">{date}</p>
+        <p className="text-[#edea5a] font-light text-base">{event.location}</p>
+        <p className="text-[#edea5a] font-light text-base">£{price}pp</p>
       </div>
     </Link>
   )

@@ -29,6 +29,17 @@ export default function NewEventPage() {
     setSlots(prev => prev.map((s, idx) => idx === i ? { ...s, [field]: value } : s))
   }
 
+  function addSlot() {
+    setSlots(prev => {
+      const last = prev[prev.length - 1]
+      return [...prev, { start_time: last?.end_time ?? '09:00', end_time: last?.end_time ?? '10:00' }]
+    })
+  }
+
+  function removeSlot(i: number) {
+    setSlots(prev => prev.filter((_, idx) => idx !== i))
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true); setError(null)
@@ -61,17 +72,19 @@ export default function NewEventPage() {
           <input type="number" required min="1" step="0.50" value={priceGBP} onChange={e => setPriceGBP(e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
 
         <div>
-          <h2 className="text-sm font-medium mb-2">Slots (7 required)</h2>
+          <h2 className="text-sm font-medium mb-2">Time slots</h2>
           <div className="space-y-2">
             {slots.map((slot, i) => (
               <div key={i} className="flex gap-2 items-center">
-                <span className="text-sm text-gray-500 w-6">{i + 1}</span>
+                <span className="text-sm w-6">{i + 1}</span>
                 <input type="time" value={slot.start_time} onChange={e => updateSlot(i, 'start_time', e.target.value)} className="border rounded px-2 py-1 text-sm" />
-                <span className="text-gray-400">–</span>
+                <span>–</span>
                 <input type="time" value={slot.end_time} onChange={e => updateSlot(i, 'end_time', e.target.value)} className="border rounded px-2 py-1 text-sm" />
+                <button type="button" onClick={() => removeSlot(i)} className="text-red-500 text-sm px-2">✕</button>
               </div>
             ))}
           </div>
+          <button type="button" onClick={addSlot} className="mt-2 text-sm text-blue-600 underline">+ Add slot</button>
         </div>
 
         <div className="flex items-center gap-2">

@@ -36,3 +36,9 @@ export async function updateEvent(id: string, updates: Partial<Omit<Event, 'id' 
   if (error) throw new Error(error.message)
   return data
 }
+
+export async function deleteEvent(id: string): Promise<void> {
+  const sb = createServiceClient()
+  const { error } = await sb.from('events').delete().eq('id', id)
+  if (error) throw new Error(error.message)
+}
