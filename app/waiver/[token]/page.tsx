@@ -43,9 +43,43 @@ export default function WaiverPage() {
     <main className="max-w-lg mx-auto px-4 py-12">
       <h1 className="text-2xl font-bold text-[#1A1A2E] mb-2">Sign your waiver</h1>
       <p className="text-gray-600 mb-6 text-sm">Each person in your group has their own link. Please complete this yourself.</p>
-      <div className="bg-gray-50 border rounded-lg p-4 mb-6 text-sm text-gray-700 h-40 overflow-y-auto">
-        <p className="font-semibold mb-2">Waiver terms</p>
-        <p>I understand that sauna and cold water immersion activities involve exposure to extreme temperatures and carry inherent risks including cardiovascular stress, dehydration, and dizziness. I confirm I am in good health, have no medical conditions that make participation unsafe, and take full responsibility for my participation. I agree not to consume alcohol before or during sessions and to follow all staff instructions. I release Backyard Sauna and its operators from any liability arising from my participation.</p>
+      <div className="bg-gray-50 border rounded-lg p-4 mb-6 text-sm text-gray-700 h-64 overflow-y-auto space-y-3">
+        <p className="font-semibold">Terms and Conditions of Use</p>
+        <p className="font-medium">Disclaimer</p>
+        <p>Use of the sauna is done so at your own risk. We ask that you contact your GP if at all in doubt about safely using the sauna.</p>
+        <p>If any of the below apply to you (please note, this is not a comprehensive list) we advise you to seek your GP&apos;s advice:</p>
+        <ul className="list-disc list-inside space-y-1">
+          <li>If you&apos;re pregnant</li>
+          <li>If you&apos;ve had a heart attack or stroke</li>
+          <li>If you&apos;re taking any medications</li>
+          <li>If you have cardiovascular conditions and/or problems</li>
+          <li>You have epilepsy</li>
+          <li>You have asthma or breathing conditions</li>
+          <li>High or low blood pressure</li>
+          <li>If you have arterial disease</li>
+          <li>If you have joint or muscle injury</li>
+        </ul>
+        <p>The sauna is wood-fired and is extremely hot. Do not touch the stove, stove door, flue chimney, sauna rocks, or surrounding fire guards, and only pour water onto the stones as instructed.</p>
+        <p>When pouring water on the rocks, start from the point furthest away from you to prevent scalding.</p>
+        <p>Children of 16 years and under are permitted to use the sauna with an Adult Family Member/Guardian present at ALL TIMES. Supervision must be on a 1:1 ratio.</p>
+        <ul className="list-disc list-inside space-y-1">
+          <li>No under 5s allowed in Hot Tubs.</li>
+          <li>No under 16s allowed in Ice Baths/Plunge Pool/Cold Showers.</li>
+        </ul>
+        <p>Alcohol and smoking are not permitted in or around the sauna. We reserve the right to refuse admission to intoxicated persons.</p>
+        <p>Any hanging jewellery should be removed before entering the sauna to prevent burning.</p>
+        <p className="font-medium">Sauna etiquette must be adhered to at all times:</p>
+        <ul className="list-disc list-inside space-y-1">
+          <li>Enter and exit the sauna with care.</li>
+          <li>Remove shoes before entering.</li>
+          <li>Sit on a towel at all times.</li>
+          <li>Stay in the sauna for no longer than 20 minutes at a time (we recommend 5–15 min sessions).</li>
+          <li>Do not use essential oils in the sauna without permission.</li>
+          <li>Only swimwear may be worn in the sauna. Nudity is not permitted.</li>
+        </ul>
+        <p>If you are making a booking on behalf of a group, it is your responsibility to make all members of your group aware of these terms and conditions.</p>
+        <p>We reserve the right to refuse admission for any reason that may be deemed a health and safety risk. Refunds will not be offered to anyone refused admission.</p>
+        <p className="font-medium">Wild Water Swimming/Plunge and Dipping is done so completely at your own risk and is NOT covered by our Insurance Policy.</p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
