@@ -38,9 +38,11 @@ export interface Booking {
 
 export interface WaiverSignature {
   id: string
-  booking_id: string
+  booking_id: string | null
   name: string | null
   email: string | null
   token: string
   signed_at: string | null
+  event_title: string | null
+  event_date: string | null
 }

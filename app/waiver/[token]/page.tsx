@@ -61,11 +61,7 @@ export default function WaiverPage() {
         </ul>
         <p>The sauna is wood-fired and is extremely hot. Do not touch the stove, stove door, flue chimney, sauna rocks, or surrounding fire guards, and only pour water onto the stones as instructed.</p>
         <p>When pouring water on the rocks, start from the point furthest away from you to prevent scalding.</p>
-        <p>Children of 16 years and under are permitted to use the sauna with an Adult Family Member/Guardian present at ALL TIMES. Supervision must be on a 1:1 ratio.</p>
-        <ul className="list-disc list-inside space-y-1">
-          <li>No under 5s allowed in Hot Tubs.</li>
-          <li>No under 16s allowed in Ice Baths/Plunge Pool/Cold Showers.</li>
-        </ul>
+        <p>You must be 18 years of age or over to use the sauna or to be on site. No under 18s are permitted at any time.</p>
         <p>Alcohol and smoking are not permitted in or around the sauna. We reserve the right to refuse admission to intoxicated persons.</p>
         <p>Any hanging jewellery should be removed before entering the sauna to prevent burning.</p>
         <p className="font-medium">Sauna etiquette must be adhered to at all times:</p>

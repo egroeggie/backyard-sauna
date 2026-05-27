@@ -11,6 +11,7 @@ export function BookingForm({ slots, eventId }: { slots: SlotWithAvailability[];
   const [email, setEmail] = useState('')
   const [spaces, setSpaces] = useState(1)
   const [waiverAccepted, setWaiverAccepted] = useState(false)
+  const [subscribe, setSubscribe] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -26,7 +27,7 @@ export function BookingForm({ slots, eventId }: { slots: SlotWithAvailability[];
       const res = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slot_id: selectedSlotId, name, email, spaces, waiver_accepted: true }),
+        body: JSON.stringify({ slot_id: selectedSlotId, name, email, spaces, waiver_accepted: true, subscribe }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -87,6 +88,15 @@ export function BookingForm({ slots, eventId }: { slots: SlotWithAvailability[];
               onChange={e => setSpaces(Number(e.target.value))} className={inputClass} />
           </div>
         )}
+      </div>
+
+      <div className="flex items-start gap-3">
+        <input type="checkbox" id="subscribe" checked={subscribe}
+          onChange={e => setSubscribe(e.target.checked)}
+          className="mt-1 accent-[#edea5a]" />
+        <label htmlFor="subscribe" className="text-sm text-[#edea5a] font-light">
+          Keep me updated with future events and news from Backyard Sauna.
+        </label>
       </div>
 
       <div className="flex items-start gap-3">

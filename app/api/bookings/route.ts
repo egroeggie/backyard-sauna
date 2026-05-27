@@ -4,6 +4,7 @@ import { createPendingBooking } from '@/lib/db/bookings'
 import { getSlotById, getSlotsByEventId } from '@/lib/db/slots'
 import { getEventById } from '@/lib/db/events'
 import { createCheckoutSession } from '@/lib/stripe'
+import { subscribeToMailchimp } from '@/lib/mailchimp'
 
 const schema = z.object({
   slot_id: z.string().uuid(),
@@ -11,6 +12,7 @@ const schema = z.object({
   email: z.string().email(),
   spaces: z.number().int().min(1).max(12),
   waiver_accepted: z.literal(true),
+  subscribe: z.boolean().optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -18,7 +20,7 @@ export async function POST(req: NextRequest) {
     const parsed = schema.safeParse(await req.json())
     if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
-    const { slot_id, name, email, spaces, waiver_accepted } = parsed.data
+    const { slot_id, name, email, spaces, waiver_accepted, subscribe } = parsed.data
     const slot = await getSlotById(slot_id)
     const event = await getEventById(slot.event_id)
 
@@ -41,6 +43,8 @@ export async function POST(req: NextRequest) {
       successUrl: `${siteUrl}/booking/success?booking_id=${booking.id}`,
       cancelUrl: `${siteUrl}/events/${event.id}`,
     })
+
+    if (subscribe) subscribeToMailchimp(email).catch(() => {})
 
     return NextResponse.json({ checkoutUrl })
   } catch (err) {
