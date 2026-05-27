@@ -5,7 +5,12 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 const TO = 'hello@backyard-sauna.com'
 
 export async function POST(req: Request) {
-  const body = await req.json()
+  let body: Record<string, unknown>
+  try {
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+  }
   const { name, email, subject, message } = body
 
   if (!name || !email || !subject || !message) {
@@ -13,15 +18,15 @@ export async function POST(req: Request) {
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(email)) {
+  if (!emailRegex.test(email as string)) {
     return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
   }
 
   const { error } = await resend.emails.send({
     from: 'Backyard Sauna <hello@backyard-sauna.com>',
     to: TO,
-    replyTo: email,
-    subject: `Contact form: ${subject}`,
+    replyTo: email as string,
+    subject: `Contact form: ${subject as string}`,
     text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
   })
 
