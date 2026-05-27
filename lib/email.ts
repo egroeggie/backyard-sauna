@@ -5,8 +5,8 @@ import { ReminderEmail } from '@/emails/reminder'
 import { WaiverConfirmationEmail } from '@/emails/waiver-confirmation'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM = 'Backyard Sauna <onboarding@resend.dev>'
-const REPLY_TO = 'stockportsauna@gmail.com'
+const FROM = 'Backyard Sauna <hello@backyard-sauna.com>'
+const REPLY_TO = 'hello@backyard-sauna.com'
 const devOverride = process.env.NODE_ENV === 'development' ? process.env.DEV_EMAIL_OVERRIDE : undefined
 
 export async function sendConfirmationEmail(p: {
