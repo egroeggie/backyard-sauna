@@ -1,16 +1,12 @@
-import Link from 'next/link'
 import { NavBar } from '@/components/NavBar'
 import { MailchimpForm } from '@/components/MailchimpForm'
 
 export default function SupportPage() {
   return (
-    <div className="min-h-screen bg-[#1f3e2a] pb-[90px]">
-      <div className="max-w-[440px] mx-auto px-6 pt-12 flex flex-col gap-6">
-        <Link href="/" className="text-[#edea5a] opacity-70 hover:opacity-100 transition-opacity">
-          ←
-        </Link>
-        <h1 className="font-display text-[#edea5a] text-4xl text-center">Support the Project</h1>
-        <div className="text-[#edea5a] font-light text-[15px] leading-relaxed text-center space-y-4">
+    <div className="min-h-screen bg-[#1f3e2a] flex flex-col">
+      <div className="flex-1 flex flex-col justify-center w-full max-w-[440px] sm:max-w-[640px] mx-auto px-6 pt-14 pb-10 gap-14">
+        <h1 className="font-display text-[#edea5a] text-[36px] leading-[50px] text-center">Support the Project</h1>
+        <div className="text-[#edea5a] font-light text-[15px] leading-relaxed text-center space-y-6">
           <p>
             Every penny from our pop-ups goes directly towards securing a permanent site within the heart of Stockport.
           </p>
