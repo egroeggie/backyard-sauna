@@ -42,6 +42,11 @@ describe('POST /api/contact', () => {
     expect(res.status).toBe(400)
   })
 
+  it('returns 400 if email is invalid', async () => {
+    const res = await POST(makeRequest({ name: 'George', email: 'not-an-email', subject: 'Hi', message: 'Hello' }))
+    expect(res.status).toBe(400)
+  })
+
   it('returns 200 and sends email on valid input', async () => {
     const res = await POST(makeRequest({ name: 'George', email: 'a@b.com', subject: 'Hi', message: 'Hello there' }))
     expect(res.status).toBe(200)

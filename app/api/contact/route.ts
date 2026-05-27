@@ -12,6 +12,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'All fields are required' }, { status: 400 })
   }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email)) {
+    return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
+  }
+
   const { error } = await resend.emails.send({
     from: 'Backyard Sauna <hello@backyard-sauna.com>',
     to: TO,
