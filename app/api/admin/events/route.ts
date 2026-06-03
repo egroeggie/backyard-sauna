@@ -15,6 +15,7 @@ const schema = z.object({
     start_time: z.string().regex(/^\d{2}:\d{2}$/),
     end_time: z.string().regex(/^\d{2}:\d{2}$/),
   })).min(1),
+  capacity: z.number().int().min(5).max(100).default(12),
 })
 
 async function isAdmin() {
@@ -33,8 +34,8 @@ export async function POST(req: NextRequest) {
   const parsed = schema.safeParse(await req.json())
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 
-  const { slots: slotInputs, ...eventData } = parsed.data
+  const { slots: slotInputs, capacity, ...eventData } = parsed.data
   const event = await createEvent({ ...eventData, image_url: null })
-  await createSlots(slotInputs.map(s => ({ event_id: event.id, ...s, capacity: 12 })))
+  await createSlots(slotInputs.map(s => ({ event_id: event.id, ...s, capacity })))
   return NextResponse.json(event, { status: 201 })
 }

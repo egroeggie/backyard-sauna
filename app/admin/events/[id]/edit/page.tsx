@@ -13,6 +13,7 @@ export default function EditEventPage() {
   const [description, setDescription] = useState('')
   const [priceGBP, setPriceGBP] = useState('14')
   const [isPublished, setIsPublished] = useState(false)
+  const [capacity, setCapacity] = useState(12)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
@@ -27,6 +28,7 @@ export default function EditEventPage() {
         setDescription(e.description)
         setPriceGBP((e.price_pence / 100).toFixed(2))
         setIsPublished(e.is_published)
+        if (e.slots?.length > 0) setCapacity(e.slots[0].capacity)
         setFetching(false)
       })
   }, [id])
@@ -40,7 +42,7 @@ export default function EditEventPage() {
       body: JSON.stringify({
         title, date, location, description,
         price_pence: Math.round(parseFloat(priceGBP) * 100),
-        is_published: isPublished,
+        is_published: isPublished, capacity,
       }),
     })
     if (!res.ok) { setError(JSON.stringify((await res.json()).error)); setLoading(false); return }
@@ -63,6 +65,8 @@ export default function EditEventPage() {
           <textarea required value={description} onChange={e => setDescription(e.target.value)} rows={4} className="w-full border rounded-lg px-3 py-2" /></div>
         <div><label className="block text-sm font-medium mb-1">Price per person (£)</label>
           <input type="number" required min="1" step="0.50" value={priceGBP} onChange={e => setPriceGBP(e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
+        <div><label className="block text-sm font-medium mb-1">Capacity per slot</label>
+          <input type="number" required min={5} max={100} value={capacity} onChange={e => setCapacity(Number(e.target.value))} className="w-full border rounded-lg px-3 py-2" /></div>
         <div className="flex items-center gap-2">
           <input type="checkbox" id="published" checked={isPublished} onChange={e => setIsPublished(e.target.checked)} />
           <label htmlFor="published" className="text-sm">Published</label>

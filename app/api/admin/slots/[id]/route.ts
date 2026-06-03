@@ -4,7 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/service'
 
 const schema = z.object({
-  capacity: z.number().int().min(1).max(100),
+  capacity: z.number().int().min(5).max(100),
 })
 
 async function isAdmin() {

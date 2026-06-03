@@ -22,6 +22,7 @@ export default function NewEventPage() {
   const [priceGBP, setPriceGBP] = useState('14')
   const [isPublished, setIsPublished] = useState(false)
   const [slots, setSlots] = useState(DEFAULT_SLOTS)
+  const [capacity, setCapacity] = useState(12)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -49,7 +50,7 @@ export default function NewEventPage() {
       body: JSON.stringify({
         title, date, location, description,
         price_pence: Math.round(parseFloat(priceGBP) * 100),
-        is_published: isPublished, slots,
+        is_published: isPublished, slots, capacity,
       }),
     })
     if (!res.ok) { setError(JSON.stringify((await res.json()).error)); setLoading(false); return }
@@ -70,6 +71,8 @@ export default function NewEventPage() {
           <textarea required value={description} onChange={e => setDescription(e.target.value)} rows={4} className="w-full border rounded-lg px-3 py-2" /></div>
         <div><label className="block text-sm font-medium mb-1">Price per person (£)</label>
           <input type="number" required min="1" step="0.50" value={priceGBP} onChange={e => setPriceGBP(e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
+        <div><label className="block text-sm font-medium mb-1">Capacity per slot</label>
+          <input type="number" required min={5} max={100} value={capacity} onChange={e => setCapacity(Number(e.target.value))} className="w-full border rounded-lg px-3 py-2" /></div>
 
         <div>
           <h2 className="text-sm font-medium mb-2">Time slots</h2>

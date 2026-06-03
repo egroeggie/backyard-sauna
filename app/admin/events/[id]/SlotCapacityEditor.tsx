@@ -60,7 +60,7 @@ export default function SlotCapacityEditor({ slots }: { slots: Slot[] }) {
                   <span className="text-sm text-gray-500">{totalBooked} /</span>
                   <input
                     type="number"
-                    min={1}
+                    min={5}
                     max={100}
                     value={currentCap}
                     onChange={e => {
