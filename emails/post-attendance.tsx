@@ -7,7 +7,7 @@ interface Props {
 }
 
 const SITE = 'https://www.backyard-sauna.com'
-const DEFAULT_PATREON = 'https://www.patreon.com/backyardsauna'
+const DEFAULT_PATREON = 'https://patreon.com/BackyardSaunaProject'
 
 const styles = {
   body: { margin: '0', padding: '0', backgroundColor: '#1f3e2a' },
