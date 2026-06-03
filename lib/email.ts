@@ -3,6 +3,7 @@ import { render } from '@react-email/render'
 import { ConfirmationEmail } from '@/emails/confirmation'
 import { ReminderEmail } from '@/emails/reminder'
 import { WaiverConfirmationEmail } from '@/emails/waiver-confirmation'
+import { PostAttendanceEmail } from '@/emails/post-attendance'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM = 'Backyard Sauna <hello@backyard-sauna.com>'
@@ -32,4 +33,11 @@ export async function sendWaiverConfirmationEmail(p: {
 }) {
   const html = await render(WaiverConfirmationEmail(p))
   return resend.emails.send({ from: FROM, replyTo: REPLY_TO, to: devOverride ?? p.to, subject: `Waiver signed: ${p.eventTitle}`, html })
+}
+
+export async function sendPostAttendanceEmail(p: {
+  to: string; name: string; eventTitle: string; patreonUrl?: string
+}) {
+  const html = await render(PostAttendanceEmail(p))
+  return resend.emails.send({ from: FROM, replyTo: REPLY_TO, to: devOverride ?? p.to, subject: `Thanks for coming to ${p.eventTitle}`, html })
 }
