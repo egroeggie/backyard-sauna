@@ -3,7 +3,7 @@
 import { useState } from 'react'
 
 type Waiver = { token: string; signed_at: string | null }
-type Booking = { id: string; name: string; email: string; spaces: number; status: string; waivers: Waiver[] }
+type Booking = { id: string; name: string; email: string; spaces: number; status: string; stripe_payment_id: string | null; waivers: Waiver[] }
 type Slot = { id: string; start_time: string; end_time: string; capacity: number; bookings: Booking[]; event_title: string; event_date: string }
 
 export default function SlotCapacityEditor({ slots }: { slots: Slot[] }) {
@@ -21,6 +21,29 @@ export default function SlotCapacityEditor({ slots }: { slots: Slot[] }) {
   // Waiver resend state: keyed by waiver token
   const [resending, setResending] = useState<Record<string, boolean>>({})
   const [resendMsg, setResendMsg] = useState<Record<string, { text: string; ok: boolean }>>({})
+
+  // Cancel booking state: keyed by booking id
+  const [cancelling, setCancelling] = useState<Record<string, boolean>>({})
+  const [cancelMsg, setCancelMsg] = useState<Record<string, { text: string; ok: boolean }>>({})
+  const [confirmCancel, setConfirmCancel] = useState<Record<string, boolean>>({})
+
+  async function handleCancel(bookingId: string) {
+    setCancelling(p => ({ ...p, [bookingId]: true }))
+    setConfirmCancel(p => ({ ...p, [bookingId]: false }))
+    try {
+      const res = await fetch(`/api/admin/bookings/${bookingId}/cancel`, { method: 'POST' })
+      const json = await res.json()
+      if (!res.ok) {
+        setCancelMsg(p => ({ ...p, [bookingId]: { text: json.error ?? 'Error', ok: false } }))
+      } else {
+        setCancelMsg(p => ({ ...p, [bookingId]: { text: json.refundId ? 'Cancelled + refunded ✓' : 'Cancelled ✓', ok: true } }))
+      }
+    } catch {
+      setCancelMsg(p => ({ ...p, [bookingId]: { text: 'Network error', ok: false } }))
+    } finally {
+      setCancelling(p => ({ ...p, [bookingId]: false }))
+    }
+  }
 
   // Walk-in waiver state: keyed by slot id
   const [walkInOpen, setWalkInOpen] = useState<Record<string, boolean>>({})
@@ -161,6 +184,7 @@ export default function SlotCapacityEditor({ slots }: { slots: Slot[] }) {
                 <thead><tr className="text-left text-gray-500">
                   <th className="pb-2">Name</th><th className="pb-2">Email</th>
                   <th className="pb-2">Spaces</th><th className="pb-2">Waivers</th>
+                  <th className="pb-2"></th>
                 </tr></thead>
                 <tbody>
                   {confirmed.map(b => {
@@ -196,6 +220,37 @@ export default function SlotCapacityEditor({ slots }: { slots: Slot[] }) {
                               )
                             })}
                           </div>
+                        </td>
+                        <td className="py-2 text-right">
+                          {cancelMsg[b.id]?.text ? (
+                            <span className={`text-xs ${cancelMsg[b.id].ok ? 'text-green-600' : 'text-red-600'}`}>
+                              {cancelMsg[b.id].text}
+                            </span>
+                          ) : confirmCancel[b.id] ? (
+                            <div className="flex items-center gap-1 justify-end">
+                              <span className="text-xs text-gray-500">Sure?</span>
+                              <button
+                                onClick={() => handleCancel(b.id)}
+                                disabled={cancelling[b.id]}
+                                className="text-xs px-2 py-0.5 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                              >
+                                {cancelling[b.id] ? '…' : 'Yes, cancel'}
+                              </button>
+                              <button
+                                onClick={() => setConfirmCancel(p => ({ ...p, [b.id]: false }))}
+                                className="text-xs px-2 py-0.5 rounded text-gray-500 hover:text-gray-800"
+                              >
+                                No
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => setConfirmCancel(p => ({ ...p, [b.id]: true }))}
+                              className="text-xs px-2 py-0.5 rounded bg-red-50 text-red-600 hover:bg-red-100"
+                            >
+                              Cancel{b.stripe_payment_id ? ' & refund' : ''}
+                            </button>
+                          )}
                         </td>
                       </tr>
                     )
