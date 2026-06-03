@@ -36,7 +36,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
           <p className="text-[#edea5a] font-light">£{price} per person</p>
         </div>
 
-        <p className="text-[#edea5a] font-light leading-relaxed">{event.description}</p>
+        <p className="text-[#edea5a] font-light leading-relaxed whitespace-pre-wrap">{event.description}</p>
 
         <BookingForm slots={slots} eventId={id} />
       </div>
