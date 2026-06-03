@@ -75,7 +75,7 @@ export default function WaiverPage() {
         </ul>
         <p>If you are making a booking on behalf of a group, it is your responsibility to make all members of your group aware of these terms and conditions.</p>
         <p>We reserve the right to refuse admission for any reason that may be deemed a health and safety risk. Refunds will not be offered to anyone refused admission.</p>
-        <p className="font-medium">Wild Water Swimming/Plunge and Dipping is done so completely at your own risk and is NOT covered by our Insurance Policy.</p>
+        <p className="font-medium">We accept no liability for any cold water exposure — it is done so entirely at your own risk. Consult your GP if you are unsure.</p>
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
