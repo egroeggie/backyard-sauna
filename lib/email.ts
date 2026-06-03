@@ -3,6 +3,7 @@ import { render } from '@react-email/render'
 import { ConfirmationEmail } from '@/emails/confirmation'
 import { ReminderEmail } from '@/emails/reminder'
 import { WaiverConfirmationEmail } from '@/emails/waiver-confirmation'
+import { WaiverLinkEmail } from '@/emails/waiver-link'
 import { PostAttendanceEmail } from '@/emails/post-attendance'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -40,4 +41,11 @@ export async function sendPostAttendanceEmail(p: {
 }) {
   const html = await render(PostAttendanceEmail(p))
   return resend.emails.send({ from: FROM, replyTo: REPLY_TO, to: devOverride ?? p.to, subject: `Thanks for coming to ${p.eventTitle}`, html })
+}
+
+export async function sendWaiverLinkEmail(p: {
+  to: string; name?: string; eventTitle: string; eventDate: string; waiverUrl: string
+}) {
+  const html = await render(WaiverLinkEmail(p))
+  return resend.emails.send({ from: FROM, replyTo: REPLY_TO, to: devOverride ?? p.to, subject: `Sign your waiver: ${p.eventTitle}`, html })
 }

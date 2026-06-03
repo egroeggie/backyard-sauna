@@ -40,3 +40,12 @@ export async function getWaiversByBookingId(bookingId: string): Promise<WaiverSi
   if (error) throw new Error(error.message)
   return data
 }
+
+export async function createWalkInWaiver(eventTitle: string, eventDate: string): Promise<WaiverSignature> {
+  const sb = createServiceClient()
+  const { data, error } = await sb.from('waiver_signatures')
+    .insert({ booking_id: null, event_title: eventTitle, event_date: eventDate })
+    .select().single()
+  if (error) throw new Error(error.message)
+  return data
+}

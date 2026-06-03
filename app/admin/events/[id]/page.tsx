@@ -16,9 +16,12 @@ export default async function AdminEventPage({ params }: { params: Promise<{ id:
   const slotsWithBookings = await Promise.all(slots.map(async slot => {
     const bookings = await getBookingsBySlotId(slot.id)
     const bookingsWithWaivers = await Promise.all(
-      bookings.map(async b => ({ ...b, waivers: await getWaiversByBookingId(b.id) }))
+      bookings.map(async b => ({
+        ...b,
+        waivers: (await getWaiversByBookingId(b.id)).map(w => ({ token: w.token, signed_at: w.signed_at })),
+      }))
     )
-    return { ...slot, bookings: bookingsWithWaivers }
+    return { ...slot, event_title: event.title, event_date: event.date, bookings: bookingsWithWaivers }
   }))
 
   return (

@@ -16,14 +16,23 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
   const waiver = await getWaiverByToken(token)
   if (waiver.signed_at) return NextResponse.json({ error: 'Already signed.' }, { status: 409 })
 
-  const booking = await getBookingById(waiver.booking_id!)
-  const slot = await getSlotById(booking.slot_id)
-  const event = await getEventById(slot.event_id)
+  let eventTitle: string, eventDate: string
+  if (waiver.booking_id) {
+    const booking = await getBookingById(waiver.booking_id)
+    const slot = await getSlotById(booking.slot_id)
+    const event = await getEventById(slot.event_id)
+    eventTitle = event.title; eventDate = event.date
+  } else {
+    if (!waiver.event_title || !waiver.event_date) {
+      return NextResponse.json({ error: 'Invalid waiver' }, { status: 400 })
+    }
+    eventTitle = waiver.event_title; eventDate = waiver.event_date
+  }
 
-  const signed = await signWaiver(token, parsed.data.name, parsed.data.email, event.title, event.date)
+  const signed = await signWaiver(token, parsed.data.name, parsed.data.email, eventTitle, eventDate)
 
   await sendWaiverConfirmationEmail({
-    to: signed.email!, name: signed.name!, eventTitle: event.title, eventDate: event.date,
+    to: signed.email!, name: signed.name!, eventTitle, eventDate,
   })
 
   return NextResponse.json({ success: true })
