@@ -79,7 +79,7 @@ export function ConfirmationEmail({ name, eventTitle, eventDate, slotStartTime, 
               )}
 
               <Text style={{ ...styles.row, marginBottom: '24px' }}>
-                Any questions, just reply to this email.
+                Any questions, or need to cancel? Just reply to this email.
               </Text>
             </Section>
 
