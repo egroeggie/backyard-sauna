@@ -40,7 +40,7 @@ export async function sendPostAttendanceEmail(p: {
   to: string; name: string; eventTitle: string; patreonUrl?: string
 }) {
   const html = await render(PostAttendanceEmail(p))
-  return resend.emails.send({ from: FROM, replyTo: REPLY_TO, to: devOverride ?? p.to, subject: `Thanks for coming to ${p.eventTitle}`, html })
+  return resend.emails.send({ from: FROM, replyTo: REPLY_TO, to: devOverride ?? p.to, subject: `Hey hot stuff 🔥`, html })
 }
 
 export async function sendWaiverLinkEmail(p: {

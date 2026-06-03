@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/reminders",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/post-attendance",
+      "schedule": "0 * * * *"
     }
   ],
   "functions": {

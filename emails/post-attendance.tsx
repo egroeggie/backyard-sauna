@@ -55,13 +55,13 @@ export function PostAttendanceEmail({ name, eventTitle, patreonUrl = DEFAULT_PAT
                 Hope you enjoyed <strong>{eventTitle}</strong>. It means a lot that you came out.
               </Text>
               <Text style={{ ...styles.body_text, marginBottom: '24px' }}>
-                We&apos;re not a wellness brand. We&apos;re just two people in Stockport who built a couple of tent saunas and wanted to share them. If you want to follow what happens next — the real version, not the polished one — we write about it on Patreon.
+                We&apos;re not a wellness brand. We&apos;re just two people in Stockport who love sauna and want to make it easier for everyone to do too. If you want to follow what happens next — the real version, not the polished one — we write about it on Patreon.
               </Text>
 
               <div style={styles.box}>
                 <Text style={styles.boxLabel}>Follow the journey</Text>
                 <Text style={styles.boxText}>
-                  Patreon is free to follow. We post the sauna hunts, the fundraising, the slow grind toward a permanent home.
+                  Patreon is free to follow. We will post the sauna hunts, the fundraising, and how we want to make it fun as we move toward a permanent home.
                 </Text>
                 <Text style={{ ...styles.boxText, margin: '0' }}>
                   <Link href={patreonUrl} style={styles.ctaLink}>Follow us on Patreon →</Link>
@@ -71,7 +71,7 @@ export function PostAttendanceEmail({ name, eventTitle, patreonUrl = DEFAULT_PAT
               <div style={{ ...styles.box, marginBottom: '24px' }}>
                 <Text style={styles.boxLabel}>Back the campaign</Text>
                 <Text style={styles.boxText}>
-                  We&apos;re raising £30k to bring Backyard Sauna into a permanent home in Stockport. Every pound helps — and there are rewards for the people who show up early.
+                  We&apos;re raising £30k to bring Backyard Sauna into a permanent home in Stockport. Every little helps — and there are rewards for the people who show up early.
                 </Text>
                 <Text style={{ ...styles.boxText, margin: '0' }}>
                   <Link href={`${SITE}/support/takepart`} style={styles.ctaLink}>Back the campaign →</Link>
