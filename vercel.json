@@ -6,7 +6,7 @@
     },
     {
       "path": "/api/cron/post-attendance",
-      "schedule": "0 * * * *"
+      "schedule": "0 20 * * *"
     }
   ],
   "functions": {
