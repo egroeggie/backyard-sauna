@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { NavBar } from '@/components/NavBar'
 import { MailchimpForm } from '@/components/MailchimpForm'
 
@@ -20,6 +21,12 @@ export default function SupportPage() {
             Stay in the loop — join our mailing list for event announcements and updates.
           </p>
         </div>
+        <Link
+          href="/support/takepart"
+          className="w-full bg-[#edea5a] text-[#1f3e2a] font-semibold text-[16px] py-4 rounded-[10px] text-center hover:opacity-90 transition-opacity"
+        >
+          Back the campaign →
+        </Link>
         <MailchimpForm />
       </div>
       <NavBar />
