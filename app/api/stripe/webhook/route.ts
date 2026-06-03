@@ -10,15 +10,10 @@ export async function POST(req: NextRequest) {
   const body = await req.text()
   const sig = req.headers.get('stripe-signature')!
 
-  console.log('[webhook] body length:', body.length)
-  console.log('[webhook] sig present:', !!sig)
-  console.log('[webhook] secret prefix:', process.env.STRIPE_WEBHOOK_SECRET?.slice(0, 12))
-
   let event
   try {
     event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
-  } catch (err) {
-    console.error('[webhook] signature error:', err instanceof Error ? err.message : err)
+  } catch {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
