@@ -22,6 +22,27 @@ export default function SlotCapacityEditor({ slots }: { slots: Slot[] }) {
   const [resending, setResending] = useState<Record<string, boolean>>({})
   const [resendMsg, setResendMsg] = useState<Record<string, { text: string; ok: boolean }>>({})
 
+  // Confirm booking state: keyed by booking id
+  const [confirmingBooking, setConfirmingBooking] = useState<Record<string, boolean>>({})
+  const [confirmBookingMsg, setConfirmBookingMsg] = useState<Record<string, { text: string; ok: boolean }>>({})
+
+  async function handleConfirm(bookingId: string) {
+    setConfirmingBooking(p => ({ ...p, [bookingId]: true }))
+    try {
+      const res = await fetch(`/api/admin/bookings/${bookingId}/confirm`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) })
+      const json = await res.json()
+      if (!res.ok) {
+        setConfirmBookingMsg(p => ({ ...p, [bookingId]: { text: json.error ?? 'Error', ok: false } }))
+      } else {
+        setConfirmBookingMsg(p => ({ ...p, [bookingId]: { text: 'Confirmed + email sent ✓', ok: true } }))
+      }
+    } catch {
+      setConfirmBookingMsg(p => ({ ...p, [bookingId]: { text: 'Network error', ok: false } }))
+    } finally {
+      setConfirmingBooking(p => ({ ...p, [bookingId]: false }))
+    }
+  }
+
   // Cancel booking state: keyed by booking id
   const [cancelling, setCancelling] = useState<Record<string, boolean>>({})
   const [cancelMsg, setCancelMsg] = useState<Record<string, { text: string; ok: boolean }>>({})
@@ -134,6 +155,7 @@ export default function SlotCapacityEditor({ slots }: { slots: Slot[] }) {
   return (
     <div className="space-y-6">
       {slots.map(slot => {
+        const pending = slot.bookings.filter(b => b.status === 'pending')
         const confirmed = slot.bookings.filter(b => b.status === 'confirmed')
         const totalBooked = confirmed.reduce((sum, b) => sum + b.spaces, 0)
         const currentCap = capacities[slot.id]
@@ -178,6 +200,42 @@ export default function SlotCapacityEditor({ slots }: { slots: Slot[] }) {
                 )}
               </div>
             </div>
+
+            {pending.length > 0 && (
+              <div className="mb-4">
+                <p className="text-xs font-semibold text-orange-600 uppercase tracking-wide mb-2">Pending (unpaid)</p>
+                <table className="w-full text-sm">
+                  <thead><tr className="text-left text-gray-500">
+                    <th className="pb-2">Name</th><th className="pb-2">Email</th>
+                    <th className="pb-2">Spaces</th><th className="pb-2"></th>
+                  </tr></thead>
+                  <tbody>
+                    {pending.map(b => (
+                      <tr key={b.id} className="border-t">
+                        <td className="py-2">{b.name}</td>
+                        <td className="py-2">{b.email}</td>
+                        <td className="py-2">{b.spaces}</td>
+                        <td className="py-2 text-right">
+                          {confirmBookingMsg[b.id]?.text ? (
+                            <span className={`text-xs ${confirmBookingMsg[b.id].ok ? 'text-green-600' : 'text-red-600'}`}>
+                              {confirmBookingMsg[b.id].text}
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => handleConfirm(b.id)}
+                              disabled={confirmingBooking[b.id]}
+                              className="text-xs px-2 py-0.5 rounded bg-green-600 text-white hover:bg-green-700 disabled:opacity-50"
+                            >
+                              {confirmingBooking[b.id] ? 'Confirming…' : 'Confirm & send email'}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
             {confirmed.length === 0 ? <p className="text-gray-400 text-sm">No bookings yet.</p> : (
               <table className="w-full text-sm mb-4">
