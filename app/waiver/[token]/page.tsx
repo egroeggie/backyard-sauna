@@ -25,25 +25,30 @@ export default function WaiverPage() {
   }
 
   if (status === 'done') return (
-    <main className="max-w-lg mx-auto px-4 py-16 text-center">
-      <div className="text-5xl mb-4">✅</div>
-      <h1 className="text-2xl font-bold text-[#1A1A2E] mb-2">Waiver signed.</h1>
-      <p className="text-gray-600">Check your email for confirmation. See you there.</p>
+    <main className="min-h-screen bg-[#1f3e2a] flex items-center justify-center px-4">
+      <div className="text-center">
+        <div className="text-5xl mb-4">✅</div>
+        <h1 className="text-2xl font-bold text-[#edea5a] mb-2">Waiver signed.</h1>
+        <p className="text-[#edea5a] opacity-75">Check your email for confirmation. See you there.</p>
+      </div>
     </main>
   )
 
   if (status === 'already_signed') return (
-    <main className="max-w-lg mx-auto px-4 py-16 text-center">
-      <h1 className="text-2xl font-bold text-[#1A1A2E] mb-2">Already signed.</h1>
-      <p className="text-gray-600">This waiver has already been completed.</p>
+    <main className="min-h-screen bg-[#1f3e2a] flex items-center justify-center px-4">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold text-[#edea5a] mb-2">Already signed.</h1>
+        <p className="text-[#edea5a] opacity-75">This waiver has already been completed.</p>
+      </div>
     </main>
   )
 
   return (
-    <main className="max-w-lg mx-auto px-4 py-12">
-      <h1 className="text-2xl font-bold text-[#1A1A2E] mb-2">Sign your waiver</h1>
-      <p className="text-gray-600 mb-6 text-sm">Each person in your group has their own link. Please complete this yourself.</p>
-      <div className="bg-gray-50 border rounded-lg p-4 mb-6 text-sm text-gray-700 h-64 overflow-y-auto space-y-3">
+    <main className="min-h-screen bg-[#1f3e2a] px-4 py-12">
+      <div className="max-w-lg mx-auto">
+      <h1 className="text-2xl font-bold text-[#edea5a] mb-2">Sign your waiver</h1>
+      <p className="text-[#edea5a] opacity-75 mb-6 text-sm">Each person in your group has their own link. Please complete this yourself.</p>
+      <div className="border border-[#edea5a] border-opacity-40 rounded-lg p-4 mb-6 text-sm text-[#edea5a] bg-[#edea5a] bg-opacity-5 h-64 overflow-y-auto space-y-3">
         <p className="font-semibold">Terms and Conditions of Use</p>
         <p className="font-medium">Disclaimer</p>
         <p>Use of the sauna is done so at your own risk. We ask that you contact your GP if at all in doubt about safely using the sauna.</p>
@@ -79,26 +84,27 @@ export default function WaiverPage() {
       </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-1">Your full name</label>
+          <label className="block text-sm font-medium text-[#edea5a] mb-1">Your full name</label>
           <input type="text" required value={name} onChange={e => setName(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#E94560]" />
+            className="w-full bg-transparent border border-[#edea5a] border-opacity-40 rounded-lg px-3 py-2 text-[#edea5a] placeholder-[#edea5a] placeholder-opacity-30 focus:outline-none focus:border-[#edea5a]" />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Your email address</label>
+          <label className="block text-sm font-medium text-[#edea5a] mb-1">Your email address</label>
           <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#E94560]" />
+            className="w-full bg-transparent border border-[#edea5a] border-opacity-40 rounded-lg px-3 py-2 text-[#edea5a] placeholder-[#edea5a] placeholder-opacity-30 focus:outline-none focus:border-[#edea5a]" />
         </div>
         <div className="flex items-start gap-3">
           <input type="checkbox" id="accept" required checked={accepted}
-            onChange={e => setAccepted(e.target.checked)} className="mt-1" />
-          <label htmlFor="accept" className="text-sm text-gray-600">I have read and agree to the waiver terms above.</label>
+            onChange={e => setAccepted(e.target.checked)} className="mt-1 accent-[#edea5a]" />
+          <label htmlFor="accept" className="text-sm text-[#edea5a] opacity-75">I have read and agree to the waiver terms above.</label>
         </div>
         {status === 'error' && <p className="text-[#E94560] text-sm">{errorMsg}</p>}
         <button type="submit" disabled={status === 'loading' || !accepted}
-          className="w-full bg-[#E94560] text-white font-semibold py-3 rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors">
+          className="w-full bg-[#edea5a] text-[#1f3e2a] font-semibold py-3 rounded-lg hover:bg-yellow-300 disabled:opacity-50 transition-colors">
           {status === 'loading' ? 'Signing…' : 'Sign waiver'}
         </button>
       </form>
+      </div>
     </main>
   )
 }
