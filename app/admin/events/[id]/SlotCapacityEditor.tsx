@@ -66,6 +66,24 @@ export default function SlotCapacityEditor({ slots }: { slots: Slot[] }) {
     }
   }
 
+  async function handleRemove(bookingId: string) {
+    setCancelling(p => ({ ...p, [bookingId]: true }))
+    setConfirmCancel(p => ({ ...p, [bookingId]: false }))
+    try {
+      const res = await fetch(`/api/admin/bookings/${bookingId}/remove`, { method: 'POST' })
+      const json = await res.json()
+      if (!res.ok) {
+        setCancelMsg(p => ({ ...p, [bookingId]: { text: json.error ?? 'Error', ok: false } }))
+      } else {
+        setCancelMsg(p => ({ ...p, [bookingId]: { text: 'Removed (no refund) ✓', ok: true } }))
+      }
+    } catch {
+      setCancelMsg(p => ({ ...p, [bookingId]: { text: 'Network error', ok: false } }))
+    } finally {
+      setCancelling(p => ({ ...p, [bookingId]: false }))
+    }
+  }
+
   // Walk-in waiver state: keyed by slot id
   const [walkInOpen, setWalkInOpen] = useState<Record<string, boolean>>({})
   const [walkInEmail, setWalkInEmail] = useState<Record<string, string>>({})
@@ -285,28 +303,39 @@ export default function SlotCapacityEditor({ slots }: { slots: Slot[] }) {
                               {cancelMsg[b.id].text}
                             </span>
                           ) : confirmCancel[b.id] ? (
-                            <div className="flex items-center gap-1 justify-end">
-                              <span className="text-xs text-gray-500">Sure?</span>
-                              <button
-                                onClick={() => handleCancel(b.id)}
-                                disabled={cancelling[b.id]}
-                                className="text-xs px-2 py-0.5 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
-                              >
-                                {cancelling[b.id] ? '…' : 'Yes, cancel'}
-                              </button>
-                              <button
-                                onClick={() => setConfirmCancel(p => ({ ...p, [b.id]: false }))}
-                                className="text-xs px-2 py-0.5 rounded text-gray-500 hover:text-gray-800"
-                              >
-                                No
-                              </button>
+                            <div className="flex flex-col items-end gap-1">
+                              <span className="text-xs text-gray-500">Remove this booking?</span>
+                              <div className="flex items-center gap-1">
+                                {b.stripe_payment_id && (
+                                  <button
+                                    onClick={() => handleCancel(b.id)}
+                                    disabled={cancelling[b.id]}
+                                    className="text-xs px-2 py-0.5 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                                  >
+                                    {cancelling[b.id] ? '…' : 'Cancel + refund'}
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => handleRemove(b.id)}
+                                  disabled={cancelling[b.id]}
+                                  className="text-xs px-2 py-0.5 rounded bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50"
+                                >
+                                  {cancelling[b.id] ? '…' : 'Remove (no refund)'}
+                                </button>
+                                <button
+                                  onClick={() => setConfirmCancel(p => ({ ...p, [b.id]: false }))}
+                                  className="text-xs px-2 py-0.5 rounded text-gray-500 hover:text-gray-800"
+                                >
+                                  No
+                                </button>
+                              </div>
                             </div>
                           ) : (
                             <button
                               onClick={() => setConfirmCancel(p => ({ ...p, [b.id]: true }))}
                               className="text-xs px-2 py-0.5 rounded bg-red-50 text-red-600 hover:bg-red-100"
                             >
-                              Cancel{b.stripe_payment_id ? ' & refund' : ''}
+                              Remove
                             </button>
                           )}
                         </td>
