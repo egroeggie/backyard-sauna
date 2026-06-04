@@ -1,6 +1,7 @@
 import { getPublishedEvents } from '@/lib/db/events'
 import { EventCard } from '@/components/EventCard'
 import { NavBar } from '@/components/NavBar'
+import Link from 'next/link'
 
 export const revalidate = 60
 
@@ -17,6 +18,9 @@ export default async function EventsPage() {
             {events.map(event => <EventCard key={event.id} event={event} />)}
           </div>
         )}
+        <p className="text-center text-[#edea5a]/50 text-xs mt-4">
+          <Link href="/policy" className="underline hover:text-[#edea5a]/80 transition-colors">Booking &amp; cancellation policy</Link>
+        </p>
       </div>
       <NavBar />
     </div>

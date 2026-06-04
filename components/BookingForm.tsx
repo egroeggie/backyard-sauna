@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import type { SlotWithAvailability } from '@/types'
 
 export function BookingForm({ slots, eventId }: { slots: SlotWithAvailability[]; eventId: string }) {
@@ -106,6 +107,8 @@ export function BookingForm({ slots, eventId }: { slots: SlotWithAvailability[];
         <label htmlFor="waiver" className="text-sm text-[#edea5a] font-light">
           I understand this involves heat exposure and accept the waiver terms.
           I will ensure everyone in my group signs their individual waiver before attending.
+          I have read and agree to the{' '}
+          <Link href="/policy" className="underline hover:opacity-80" target="_blank">booking &amp; cancellation policy</Link>.
         </label>
       </div>
 

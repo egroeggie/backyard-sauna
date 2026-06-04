@@ -81,7 +81,7 @@ export function ConfirmationEmail({ name, eventTitle, eventDate, slotStartTime, 
               <div style={{ ...styles.box, marginBottom: '24px' }}>
                 <Text style={styles.boxLabel}>Before you arrive</Text>
                 <Text style={styles.row}><strong>Please arrive 15 minutes before your slot</strong> — this gives you time to get changed, meet the team, and get your waiver checked.</Text>
-                <Text style={styles.rowLast}>Need to cancel? Reply to this email as soon as possible. Cancellations with more than 24 hours' notice will be refunded in full.</Text>
+                <Text style={styles.rowLast}>Need to cancel? Reply to this email as soon as possible. Cancellations with more than 24 hours&apos; notice will be refunded in full. <Link href={`${SITE}/policy`} style={{ color: '#edea5a', opacity: 0.7 }}>View full policy →</Link></Text>
               </div>
             </Section>
 
