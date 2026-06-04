@@ -6,7 +6,7 @@ import { getSlotById } from '@/lib/db/slots'
 import { getEventById } from '@/lib/db/events'
 import { sendWaiverConfirmationEmail } from '@/lib/email'
 
-const schema = z.object({ name: z.string().min(1), email: z.string().email() })
+const schema = z.object({ name: z.string().min(1), dob: z.string().min(1), email: z.string().email() })
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ token: string }> }) {
   const { token } = await params
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ tok
     eventTitle = waiver.event_title; eventDate = waiver.event_date
   }
 
-  const signed = await signWaiver(token, parsed.data.name, parsed.data.email, eventTitle, eventDate)
+  const signed = await signWaiver(token, parsed.data.name, parsed.data.dob, parsed.data.email, eventTitle, eventDate)
 
   await sendWaiverConfirmationEmail({
     to: signed.email!, name: signed.name!, eventTitle, eventDate,

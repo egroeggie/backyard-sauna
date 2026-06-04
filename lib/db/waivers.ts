@@ -16,10 +16,10 @@ export async function getWaiverByToken(token: string): Promise<WaiverSignature> 
   return data
 }
 
-export async function signWaiver(token: string, name: string, email: string, eventTitle: string, eventDate: string): Promise<WaiverSignature> {
+export async function signWaiver(token: string, name: string, dob: string, email: string, eventTitle: string, eventDate: string): Promise<WaiverSignature> {
   const sb = createServiceClient()
   const { data, error } = await sb.from('waiver_signatures')
-    .update({ name, email, signed_at: new Date().toISOString(), event_title: eventTitle, event_date: eventDate })
+    .update({ name, dob, email, signed_at: new Date().toISOString(), event_title: eventTitle, event_date: eventDate })
     .eq('token', token).is('signed_at', null).select().single()
   if (error) throw new Error(error.message)
   return data

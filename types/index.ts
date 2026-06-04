@@ -45,4 +45,5 @@ export interface WaiverSignature {
   signed_at: string | null
   event_title: string | null
   event_date: string | null
+  dob: string | null
 }

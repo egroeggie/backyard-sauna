@@ -82,7 +82,8 @@ export function ReminderEmail({ name, eventTitle, eventDate, slotStartTime, slot
                 <Text style={styles.boxLabel}>What to bring</Text>
                 <Text style={styles.row}><strong>Towel</strong> — you'll need it</Text>
                 <Text style={styles.row}><strong>Flip flops</strong> — the ground gets hot</Text>
-                <Text style={styles.rowLast}><strong>Swimwear</strong> — mandatory on site</Text>
+                <Text style={styles.row}><strong>Swimwear</strong> — mandatory on site</Text>
+                <Text style={styles.rowLast}><strong>Water bottle</strong> — stay hydrated, especially between rounds</Text>
               </div>
 
               {/* Getting here */}

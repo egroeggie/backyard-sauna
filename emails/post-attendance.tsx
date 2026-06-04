@@ -48,11 +48,11 @@ export function PostAttendanceEmail({ name, eventTitle, patreonUrl = DEFAULT_PAT
             <hr style={styles.divider} />
 
             <Section style={styles.bodyCell}>
-              <Text style={styles.h1}>Glad you made it.</Text>
-              <Text style={styles.subhead}>Hi {name} — hope the heat treated you well.</Text>
+              <Text style={styles.h1}>Good to have you.</Text>
+              <Text style={styles.subhead}>Hi {name} — hope it was worth the sweat.</Text>
 
               <Text style={styles.body_text}>
-                Hope you enjoyed <strong>{eventTitle}</strong>. It means a lot that you came out.
+                Thanks for coming to <strong>{eventTitle}</strong>. It genuinely means a lot — every session like this gets us closer to something permanent.
               </Text>
               <Text style={{ ...styles.body_text, marginBottom: '24px' }}>
                 We&apos;re not a wellness brand. We&apos;re just two people in Stockport who love sauna and want to make it easier for everyone to do too. If you want to follow what happens next — the real version, not the polished one — we write about it on Patreon.

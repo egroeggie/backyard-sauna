@@ -4,13 +4,13 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 const DEFAULT_SLOTS = [
-  { start_time: '09:00', end_time: '10:00' },
-  { start_time: '10:00', end_time: '11:00' },
-  { start_time: '11:00', end_time: '12:00' },
-  { start_time: '12:00', end_time: '13:00' },
-  { start_time: '13:00', end_time: '14:00' },
-  { start_time: '14:00', end_time: '15:00' },
-  { start_time: '15:00', end_time: '16:00' },
+  { start_time: '09:00', end_time: '09:50' },
+  { start_time: '10:00', end_time: '10:50' },
+  { start_time: '11:00', end_time: '11:50' },
+  { start_time: '12:00', end_time: '12:50' },
+  { start_time: '13:00', end_time: '13:50' },
+  { start_time: '14:00', end_time: '14:50' },
+  { start_time: '15:00', end_time: '15:50' },
 ]
 
 export default function NewEventPage() {
