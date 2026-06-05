@@ -50,7 +50,7 @@ export default function WaiverPage() {
       <div className="max-w-lg mx-auto">
       <h1 className="text-2xl font-bold text-[#edea5a] mb-2">Sign your waiver</h1>
       <p className="text-[#edea5a] opacity-75 mb-6 text-sm">Each person in your group has their own link. Please complete this yourself.</p>
-      <div className="border border-[#edea5a] border-opacity-40 rounded-lg p-4 mb-6 text-sm text-[#edea5a] bg-[#edea5a] bg-opacity-5 h-64 overflow-y-auto space-y-3">
+      <div className="border border-gray-200 rounded-lg p-4 mb-6 text-sm text-gray-900 bg-white h-64 overflow-y-auto space-y-3">
         <p className="font-semibold">Health &amp; Safety Terms — Participation Agreement</p>
 
         <p>By signing this waiver, you confirm that you have read, understood, and agree to all of the following terms. These terms are non-negotiable and apply to all participants without exception.</p>
