@@ -18,8 +18,8 @@ export async function proxy(req: NextRequest) {
     }
   )
 
-  const { data: { session } } = await sb.auth.getSession()
-  if (!session && req.nextUrl.pathname !== '/admin/login') {
+  const { data: { user } } = await sb.auth.getUser()
+  if (!user && req.nextUrl.pathname !== '/admin/login') {
     return NextResponse.redirect(new URL('/admin/login', req.url))
   }
   return res

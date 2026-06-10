@@ -20,8 +20,8 @@ const schema = z.object({
 
 async function isAdmin() {
   const sb = await createClient()
-  const { data: { session } } = await sb.auth.getSession()
-  return !!session
+  const { data: { user } } = await sb.auth.getUser()
+  return !!user
 }
 
 export async function GET() {
