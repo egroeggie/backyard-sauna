@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/admin/auth'
 import { createEvent, getAllEvents } from '@/lib/db/events'
 import { createSlots } from '@/lib/db/slots'
 
@@ -18,19 +18,13 @@ const schema = z.object({
   capacity: z.number().int().min(5).max(100).default(12),
 })
 
-async function isAdmin() {
-  const sb = await createClient()
-  const { data: { user } } = await sb.auth.getUser()
-  return !!user
-}
-
 export async function GET() {
-  if (!await isAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!await requireAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   return NextResponse.json(await getAllEvents())
 }
 
 export async function POST(req: NextRequest) {
-  if (!await isAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!await requireAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const parsed = schema.safeParse(await req.json())
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
 

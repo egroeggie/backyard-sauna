@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/admin/auth'
 import { createServiceClient } from '@/lib/supabase/service'
 import { updateEvent, deleteEvent } from '@/lib/db/events'
 
@@ -13,14 +13,8 @@ const schema = z.object({
   capacity: z.number().int().min(5).max(100).optional(),
 })
 
-async function isAdmin() {
-  const sb = await createClient()
-  const { data: { user } } = await sb.auth.getUser()
-  return !!user
-}
-
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!await isAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!await requireAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const { id } = await params
   const { getEventById } = await import('@/lib/db/events')
   const { getSlotsByEventId } = await import('@/lib/db/slots')
@@ -29,7 +23,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!await isAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!await requireAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const { id } = await params
   const parsed = schema.safeParse(await req.json())
   if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
@@ -43,7 +37,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!await isAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!await requireAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const { id } = await params
   await deleteEvent(id)
   return new NextResponse(null, { status: 204 })

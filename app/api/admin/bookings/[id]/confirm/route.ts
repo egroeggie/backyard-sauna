@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/admin/auth'
 import { getBookingById, confirmBooking } from '@/lib/db/bookings'
 import { createWaiverSignatures, getWaiversByBookingId } from '@/lib/db/waivers'
 import { getSlotById } from '@/lib/db/slots'
@@ -8,14 +8,8 @@ import { sendConfirmationEmail } from '@/lib/email'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL!
 
-async function isAdmin() {
-  const sb = await createClient()
-  const { data: { session } } = await sb.auth.getSession()
-  return !!session
-}
-
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  if (!await isAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!await requireAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id } = await params
   const body = await req.json().catch(() => ({}))

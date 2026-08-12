@@ -1,16 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { createClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/admin/auth'
 import { createWalkInWaiver, getWaiverByToken } from '@/lib/db/waivers'
 import { sendWaiverLinkEmail } from '@/lib/email'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL!
-
-async function isAdmin() {
-  const sb = await createClient()
-  const { data: { session } } = await sb.auth.getSession()
-  return !!session
-}
 
 const walkInSchema = z.object({
   action: z.literal('walk_in'),
@@ -30,7 +24,7 @@ const resendSchema = z.object({
 const schema = z.discriminatedUnion('action', [walkInSchema, resendSchema])
 
 export async function POST(req: NextRequest) {
-  if (!await isAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!await requireAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
     const parsed = schema.safeParse(await req.json())
