@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import { getEventById } from '@/lib/db/events'
 import { getSlotsByEventId } from '@/lib/db/slots'
 import { getBookingsBySlotId } from '@/lib/db/bookings'
@@ -26,7 +27,15 @@ export default async function AdminEventPage({ params }: { params: Promise<{ id:
 
   return (
     <div className="max-w-4xl">
-      <h1 className="text-2xl font-bold mb-1">{event.title}</h1>
+      <div className="flex items-center justify-between mb-1">
+        <h1 className="text-2xl font-bold">{event.title}</h1>
+        <Link
+          href={`/admin/events/${event.id}/checkin`}
+          className="text-sm px-3 py-1.5 rounded-lg bg-green-600 text-white hover:bg-green-700"
+        >
+          Check in
+        </Link>
+      </div>
       <p className="text-gray-600 mb-6">{event.date} · {event.location}</p>
       <SlotCapacityEditor slots={slotsWithBookings} eventId={event.id} />
     </div>

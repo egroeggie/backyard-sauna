@@ -38,6 +38,7 @@ export default async function AdminEventsPage() {
                 <td className="px-4 py-3">
                   <div className="flex gap-3 items-center">
                     <Link href={`/admin/events/${event.id}`} className="text-[#E94560] hover:underline">Bookings</Link>
+                    <Link href={`/admin/events/${event.id}/checkin`} className="hover:underline">Check in</Link>
                     <Link href={`/admin/events/${event.id}/edit`} className="hover:underline">Edit</Link>
                     <DeleteEventButton id={event.id} />
                   </div>

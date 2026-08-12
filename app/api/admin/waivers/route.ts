@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { requireAdmin } from '@/lib/admin/auth'
-import { createWalkInWaiver, getWaiverByToken, markWaiverSigned, updateWaiver, deleteWaiver } from '@/lib/db/waivers'
+import { createWalkInWaiver, getWaiverByToken, markWaiverSigned, updateWaiver, deleteWaiver, checkInWaiver, undoCheckIn } from '@/lib/db/waivers'
 import { sendWaiverLinkEmail } from '@/lib/email'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL!
@@ -42,7 +42,19 @@ const deleteSchema = z.object({
   waiver_id: z.string().uuid(),
 })
 
-const schema = z.discriminatedUnion('action', [walkInSchema, resendSchema, markSignedSchema, editSchema, deleteSchema])
+const checkInSchema = z.object({
+  action: z.literal('check_in'),
+  waiver_id: z.string().uuid(),
+})
+
+const undoCheckInSchema = z.object({
+  action: z.literal('undo_check_in'),
+  waiver_id: z.string().uuid(),
+})
+
+const schema = z.discriminatedUnion('action', [
+  walkInSchema, resendSchema, markSignedSchema, editSchema, deleteSchema, checkInSchema, undoCheckInSchema,
+])
 
 export async function POST(req: NextRequest) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -82,9 +94,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(waiver)
     }
 
-    // delete
-    await deleteWaiver(parsed.data.waiver_id)
-    return NextResponse.json({ ok: true })
+    if (parsed.data.action === 'delete') {
+      await deleteWaiver(parsed.data.waiver_id)
+      return NextResponse.json({ ok: true })
+    }
+
+    if (parsed.data.action === 'check_in') {
+      try {
+        const waiver = await checkInWaiver(parsed.data.waiver_id)
+        return NextResponse.json(waiver)
+      } catch (err) {
+        if (err instanceof Error && err.message === 'Waiver is not signed yet') {
+          return NextResponse.json({ error: err.message }, { status: 409 })
+        }
+        throw err
+      }
+    }
+
+    // undo_check_in
+    const waiver = await undoCheckIn(parsed.data.waiver_id)
+    return NextResponse.json(waiver)
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Internal server error'
     console.error('[POST /api/admin/waivers]', err)
