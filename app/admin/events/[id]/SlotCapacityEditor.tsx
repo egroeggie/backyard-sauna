@@ -145,6 +145,50 @@ export default function SlotCapacityEditor({ slots, eventId }: { slots: Slot[]; 
     }
   }
 
+  // Admin create-booking state: keyed by slot id
+  const [addBookingOpen, setAddBookingOpen] = useState<Record<string, boolean>>({})
+  const [addBookingName, setAddBookingName] = useState<Record<string, string>>({})
+  const [addBookingEmail, setAddBookingEmail] = useState<Record<string, string>>({})
+  const [addBookingSpaces, setAddBookingSpaces] = useState<Record<string, number>>({})
+  const [addBookingMode, setAddBookingMode] = useState<Record<string, 'mark_paid' | 'payment_link'>>({})
+  const [addBookingSending, setAddBookingSending] = useState<Record<string, boolean>>({})
+  const [addBookingMsg, setAddBookingMsg] = useState<Record<string, { text: string; ok: boolean }>>({})
+
+  async function handleAddBooking(slotId: string) {
+    const name = addBookingName[slotId]?.trim()
+    const email = addBookingEmail[slotId]?.trim()
+    const spaces = addBookingSpaces[slotId] ?? 1
+    const mode = addBookingMode[slotId] ?? 'mark_paid'
+    if (!name || !email) return
+    setAddBookingSending(p => ({ ...p, [slotId]: true }))
+    try {
+      const res = await fetch('/api/admin/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slot_id: slotId, name, email, spaces, mode }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setAddBookingMsg(p => ({ ...p, [slotId]: { text: typeof json.error === 'string' ? json.error : 'Error', ok: false } }))
+      } else {
+        setAddBookingMsg(p => ({
+          ...p,
+          [slotId]: {
+            text: mode === 'mark_paid' ? 'Booked & confirmed ✓ Refresh to see it.' : 'Payment link emailed ✓',
+            ok: true,
+          },
+        }))
+        setAddBookingName(p => ({ ...p, [slotId]: '' }))
+        setAddBookingEmail(p => ({ ...p, [slotId]: '' }))
+        setAddBookingSpaces(p => ({ ...p, [slotId]: 1 }))
+      }
+    } catch {
+      setAddBookingMsg(p => ({ ...p, [slotId]: { text: 'Network error', ok: false } }))
+    } finally {
+      setAddBookingSending(p => ({ ...p, [slotId]: false }))
+    }
+  }
+
   // Walk-in waiver state: keyed by slot id
   const [walkInOpen, setWalkInOpen] = useState<Record<string, boolean>>({})
   const [walkInEmail, setWalkInEmail] = useState<Record<string, string>>({})
@@ -458,6 +502,83 @@ export default function SlotCapacityEditor({ slots, eventId }: { slots: Slot[]; 
                 </tbody>
               </table>
             )}
+
+            {/* Admin create booking */}
+            <div className="border-t pt-3 mt-1">
+              {!addBookingOpen[slot.id] ? (
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setAddBookingOpen(p => ({ ...p, [slot.id]: true }))}
+                    className="text-sm px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  >
+                    + Add booking
+                  </button>
+                  {addBookingMsg[slot.id]?.text && (
+                    <span className={`text-xs ${addBookingMsg[slot.id].ok ? 'text-green-600' : 'text-red-600'}`}>
+                      {addBookingMsg[slot.id].text}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">New booking</p>
+                  <div className="flex gap-2 flex-wrap items-center">
+                    <input
+                      type="text"
+                      placeholder="Name *"
+                      value={addBookingName[slot.id] ?? ''}
+                      onChange={e => setAddBookingName(p => ({ ...p, [slot.id]: e.target.value }))}
+                      className="text-sm border rounded px-2 py-1 w-40"
+                    />
+                    <input
+                      type="email"
+                      placeholder="Email *"
+                      value={addBookingEmail[slot.id] ?? ''}
+                      onChange={e => setAddBookingEmail(p => ({ ...p, [slot.id]: e.target.value }))}
+                      className="text-sm border rounded px-2 py-1 w-48"
+                    />
+                    <input
+                      type="number"
+                      min={1}
+                      max={12}
+                      value={addBookingSpaces[slot.id] ?? 1}
+                      onChange={e => {
+                        const v = parseInt(e.target.value, 10)
+                        if (!isNaN(v)) setAddBookingSpaces(p => ({ ...p, [slot.id]: v }))
+                      }}
+                      className="w-16 text-sm border rounded px-1 py-1 text-center"
+                      title="Spaces"
+                    />
+                    <select
+                      value={addBookingMode[slot.id] ?? 'mark_paid'}
+                      onChange={e => setAddBookingMode(p => ({ ...p, [slot.id]: e.target.value as 'mark_paid' | 'payment_link' }))}
+                      className="text-sm border rounded px-2 py-1"
+                    >
+                      <option value="mark_paid">Mark as paid</option>
+                      <option value="payment_link">Send payment link</option>
+                    </select>
+                    <button
+                      onClick={() => handleAddBooking(slot.id)}
+                      disabled={addBookingSending[slot.id] || !addBookingName[slot.id]?.trim() || !addBookingEmail[slot.id]?.trim()}
+                      className="text-sm px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      {addBookingSending[slot.id] ? 'Saving…' : 'Create'}
+                    </button>
+                    <button
+                      onClick={() => { setAddBookingOpen(p => ({ ...p, [slot.id]: false })); setAddBookingMsg(p => ({ ...p, [slot.id]: { text: '', ok: true } })) }}
+                      className="text-sm px-2 py-1 rounded text-gray-500 hover:text-gray-800"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                  {addBookingMsg[slot.id]?.text && (
+                    <span className={`text-xs ${addBookingMsg[slot.id].ok ? 'text-green-600' : 'text-red-600'}`}>
+                      {addBookingMsg[slot.id].text}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Walk-in waiver */}
             <div className="border-t pt-3 mt-1">

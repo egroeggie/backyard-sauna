@@ -80,4 +80,44 @@ describe('SlotCapacityEditor', () => {
     })))
     await waitFor(() => expect(screen.getByText(/Session added/i)).toBeInTheDocument())
   })
+
+  it('creates a booking with mark_paid mode by default', async () => {
+    const fetchSpy = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, mode: 'mark_paid' }) })
+    global.fetch = fetchSpy as never
+    render(<SlotCapacityEditor slots={mockSlots as never} eventId="e1" />)
+
+    const addBookingButtons = screen.getAllByText('+ Add booking')
+    fireEvent.click(addBookingButtons[1]) // slot s2
+
+    fireEvent.change(screen.getByPlaceholderText('Name *'), { target: { value: 'Charlie' } })
+    fireEvent.change(screen.getByPlaceholderText('Email *'), { target: { value: 'charlie@example.com' } })
+    fireEvent.click(screen.getByText('Create'))
+
+    await waitFor(() => expect(fetchSpy).toHaveBeenCalledWith('/api/admin/bookings', expect.objectContaining({
+      method: 'POST',
+      body: JSON.stringify({ slot_id: 's2', name: 'Charlie', email: 'charlie@example.com', spaces: 1, mode: 'mark_paid' }),
+    })))
+    await waitFor(() => expect(screen.getByText(/Booked & confirmed/i)).toBeInTheDocument())
+  })
+
+  it('creates a booking with payment_link mode when selected', async () => {
+    const fetchSpy = jest.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, mode: 'payment_link', checkoutUrl: 'https://stripe.test/x' }) })
+    global.fetch = fetchSpy as never
+    render(<SlotCapacityEditor slots={mockSlots as never} eventId="e1" />)
+
+    const addBookingButtons = screen.getAllByText('+ Add booking')
+    fireEvent.click(addBookingButtons[1])
+
+    fireEvent.change(screen.getByPlaceholderText('Name *'), { target: { value: 'Dana' } })
+    fireEvent.change(screen.getByPlaceholderText('Email *'), { target: { value: 'dana@example.com' } })
+    fireEvent.change(screen.getByTitle('Spaces'), { target: { value: '3' } })
+    fireEvent.change(screen.getByDisplayValue('Mark as paid'), { target: { value: 'payment_link' } })
+    fireEvent.click(screen.getByText('Create'))
+
+    await waitFor(() => expect(fetchSpy).toHaveBeenCalledWith('/api/admin/bookings', expect.objectContaining({
+      method: 'POST',
+      body: JSON.stringify({ slot_id: 's2', name: 'Dana', email: 'dana@example.com', spaces: 3, mode: 'payment_link' }),
+    })))
+    await waitFor(() => expect(screen.getByText(/Payment link emailed/i)).toBeInTheDocument())
+  })
 })

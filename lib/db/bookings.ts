@@ -10,7 +10,7 @@ export async function createPendingBooking(input: CreateInput): Promise<Booking>
   return data
 }
 
-export async function confirmBooking(id: string, stripePaymentId: string): Promise<Booking> {
+export async function confirmBooking(id: string, stripePaymentId: string | null): Promise<Booking> {
   const sb = createServiceClient()
   const { data, error } = await sb.from('bookings')
     .update({ status: 'confirmed', stripe_payment_id: stripePaymentId })

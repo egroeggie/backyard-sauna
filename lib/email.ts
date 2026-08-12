@@ -5,6 +5,7 @@ import { ReminderEmail } from '@/emails/reminder'
 import { WaiverConfirmationEmail } from '@/emails/waiver-confirmation'
 import { WaiverLinkEmail } from '@/emails/waiver-link'
 import { PostAttendanceEmail } from '@/emails/post-attendance'
+import { PaymentLinkEmail } from '@/emails/payment-link'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM = 'Backyard Sauna <hello@backyard-sauna.com>'
@@ -48,4 +49,11 @@ export async function sendWaiverLinkEmail(p: {
 }) {
   const html = await render(WaiverLinkEmail(p))
   return resend.emails.send({ from: FROM, replyTo: REPLY_TO, to: devOverride ?? p.to, subject: `Sign your waiver: ${p.eventTitle}`, html })
+}
+
+export async function sendPaymentLinkEmail(p: {
+  to: string; name?: string; eventTitle: string; eventDate: string; spaces: number; checkoutUrl: string
+}) {
+  const html = await render(PaymentLinkEmail(p))
+  return resend.emails.send({ from: FROM, replyTo: REPLY_TO, to: devOverride ?? p.to, subject: `Complete your booking: ${p.eventTitle}`, html })
 }

@@ -16,7 +16,7 @@ jest.mock('@/lib/email')
 import { POST } from '@/app/api/stripe/webhook/route'
 import { stripe } from '@/lib/stripe'
 import { confirmBooking, cancelBooking } from '@/lib/db/bookings'
-import { createWaiverSignatures } from '@/lib/db/waivers'
+import { createWaiverSignatures, getWaiversByBookingId } from '@/lib/db/waivers'
 import { getSlotById } from '@/lib/db/slots'
 import { getEventById } from '@/lib/db/events'
 import { sendConfirmationEmail } from '@/lib/email'
@@ -60,6 +60,7 @@ describe('POST /api/stripe/webhook', () => {
       ;(confirmBooking as jest.Mock).mockResolvedValue({
         id: 'b1', email: 'test@test.com', name: 'Bob', spaces: 2, slot_id: 's1',
       })
+      ;(getWaiversByBookingId as jest.Mock).mockResolvedValue([])
       ;(createWaiverSignatures as jest.Mock).mockResolvedValue([{ token: 'tok1' }, { token: 'tok2' }])
       ;(getSlotById as jest.Mock).mockResolvedValue({ event_id: 'e1', start_time: '10:00', end_time: '11:30' })
       ;(getEventById as jest.Mock).mockResolvedValue({ title: 'Evening Sauna', date: '2026-06-01', location: 'Stockport' })
