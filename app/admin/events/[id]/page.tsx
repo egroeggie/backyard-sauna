@@ -28,7 +28,7 @@ export default async function AdminEventPage({ params }: { params: Promise<{ id:
     <div className="max-w-4xl">
       <h1 className="text-2xl font-bold mb-1">{event.title}</h1>
       <p className="text-gray-600 mb-6">{event.date} · {event.location}</p>
-      <SlotCapacityEditor slots={slotsWithBookings} />
+      <SlotCapacityEditor slots={slotsWithBookings} eventId={event.id} />
     </div>
   )
 }

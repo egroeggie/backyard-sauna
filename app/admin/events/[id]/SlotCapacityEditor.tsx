@@ -6,17 +6,78 @@ type Waiver = { token: string; signed_at: string | null }
 type Booking = { id: string; name: string; email: string; spaces: number; status: string; stripe_payment_id: string | null; waivers: Waiver[] }
 type Slot = { id: string; start_time: string; end_time: string; capacity: number; bookings: Booking[]; event_title: string; event_date: string }
 
-export default function SlotCapacityEditor({ slots }: { slots: Slot[] }) {
+export default function SlotCapacityEditor({ slots, eventId }: { slots: Slot[]; eventId: string }) {
   const fmt = (t: string) => t.slice(0, 5)
 
   const [capacities, setCapacities] = useState<Record<string, number>>(
     Object.fromEntries(slots.map(s => [s.id, s.capacity]))
   )
-  const [saved, setSaved] = useState<Record<string, number>>(
-    Object.fromEntries(slots.map(s => [s.id, s.capacity]))
+  const [times, setTimes] = useState<Record<string, { start: string; end: string }>>(
+    Object.fromEntries(slots.map(s => [s.id, { start: fmt(s.start_time), end: fmt(s.end_time) }]))
+  )
+  const [saved, setSaved] = useState<Record<string, { capacity: number; start: string; end: string }>>(
+    Object.fromEntries(slots.map(s => [s.id, { capacity: s.capacity, start: fmt(s.start_time), end: fmt(s.end_time) }]))
   )
   const [messages, setMessages] = useState<Record<string, { text: string; ok: boolean }>>({})
   const [saving, setSaving] = useState<Record<string, boolean>>({})
+
+  // Delete session state: keyed by slot id
+  const [deletingSlot, setDeletingSlot] = useState<Record<string, boolean>>({})
+  const [deleteSlotMsg, setDeleteSlotMsg] = useState<Record<string, { text: string; ok: boolean }>>({})
+  const [confirmDeleteSlot, setConfirmDeleteSlot] = useState<Record<string, boolean>>({})
+  const [removedSlots, setRemovedSlots] = useState<Record<string, boolean>>({})
+
+  // Add session state
+  const [addSessionOpen, setAddSessionOpen] = useState(false)
+  const [newStart, setNewStart] = useState('')
+  const [newEnd, setNewEnd] = useState('')
+  const [newCapacity, setNewCapacity] = useState(12)
+  const [addingSession, setAddingSession] = useState(false)
+  const [addSessionMsg, setAddSessionMsg] = useState<{ text: string; ok: boolean } | null>(null)
+
+  async function handleAddSession() {
+    if (!newStart || !newEnd) return
+    setAddingSession(true)
+    setAddSessionMsg(null)
+    try {
+      const res = await fetch('/api/admin/slots', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_id: eventId, start_time: newStart, end_time: newEnd, capacity: newCapacity }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setAddSessionMsg({ text: typeof json.error === 'string' ? json.error : 'Error adding session', ok: false })
+      } else {
+        setAddSessionMsg({ text: 'Session added ✓ Refresh to see it in the list.', ok: true })
+        setNewStart('')
+        setNewEnd('')
+        setNewCapacity(12)
+      }
+    } catch {
+      setAddSessionMsg({ text: 'Network error', ok: false })
+    } finally {
+      setAddingSession(false)
+    }
+  }
+
+  async function handleDeleteSlot(slotId: string) {
+    setDeletingSlot(p => ({ ...p, [slotId]: true }))
+    setConfirmDeleteSlot(p => ({ ...p, [slotId]: false }))
+    try {
+      const res = await fetch(`/api/admin/slots/${slotId}`, { method: 'DELETE' })
+      if (res.status === 204) {
+        setRemovedSlots(p => ({ ...p, [slotId]: true }))
+      } else {
+        const json = await res.json()
+        setDeleteSlotMsg(p => ({ ...p, [slotId]: { text: json.error ?? 'Error', ok: false } }))
+      }
+    } catch {
+      setDeleteSlotMsg(p => ({ ...p, [slotId]: { text: 'Network error', ok: false } }))
+    } finally {
+      setDeletingSlot(p => ({ ...p, [slotId]: false }))
+    }
+  }
 
   // Waiver resend state: keyed by waiver token
   const [resending, setResending] = useState<Record<string, boolean>>({})
@@ -98,13 +159,17 @@ export default function SlotCapacityEditor({ slots }: { slots: Slot[] }) {
       const res = await fetch(`/api/admin/slots/${slotId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ capacity: capacities[slotId] }),
+        body: JSON.stringify({
+          capacity: capacities[slotId],
+          start_time: times[slotId].start,
+          end_time: times[slotId].end,
+        }),
       })
       const json = await res.json()
       if (!res.ok) {
-        setMessages(p => ({ ...p, [slotId]: { text: json.error ?? 'Error saving', ok: false } }))
+        setMessages(p => ({ ...p, [slotId]: { text: typeof json.error === 'string' ? json.error : 'Error saving', ok: false } }))
       } else {
-        setSaved(p => ({ ...p, [slotId]: capacities[slotId] }))
+        setSaved(p => ({ ...p, [slotId]: { capacity: capacities[slotId], start: times[slotId].start, end: times[slotId].end } }))
         setMessages(p => ({ ...p, [slotId]: { text: 'Saved ✓', ok: true } }))
         setTimeout(() => setMessages(p => ({ ...p, [slotId]: { text: '', ok: true } })), 2500)
       }
@@ -172,19 +237,38 @@ export default function SlotCapacityEditor({ slots }: { slots: Slot[] }) {
 
   return (
     <div className="space-y-6">
-      {slots.map(slot => {
+      {slots.filter(slot => !removedSlots[slot.id]).map(slot => {
         const pending = slot.bookings.filter(b => b.status === 'pending')
         const confirmed = slot.bookings.filter(b => b.status === 'confirmed')
         const totalBooked = confirmed.reduce((sum, b) => sum + b.spaces, 0)
         const currentCap = capacities[slot.id]
-        const unchanged = currentCap === saved[slot.id]
+        const currentTimes = times[slot.id]
+        const unchanged = currentCap === saved[slot.id].capacity
+          && currentTimes.start === saved[slot.id].start
+          && currentTimes.end === saved[slot.id].end
         const msg = messages[slot.id]
         const wiMsg = walkInMsg[slot.id]
+        const hasActiveBookings = pending.length > 0 || confirmed.length > 0
+        const delMsg = deleteSlotMsg[slot.id]
 
         return (
           <div key={slot.id} className="border rounded-lg p-4">
             <div className="flex justify-between items-start mb-3">
-              <h2 className="font-semibold">{fmt(slot.start_time)} – {fmt(slot.end_time)}</h2>
+              <div className="flex items-center gap-1">
+                <input
+                  type="time"
+                  value={currentTimes.start}
+                  onChange={e => setTimes(p => ({ ...p, [slot.id]: { ...p[slot.id], start: e.target.value } }))}
+                  className="text-sm border rounded px-1 py-0.5 font-semibold"
+                />
+                <span className="text-gray-400">–</span>
+                <input
+                  type="time"
+                  value={currentTimes.end}
+                  onChange={e => setTimes(p => ({ ...p, [slot.id]: { ...p[slot.id], end: e.target.value } }))}
+                  className="text-sm border rounded px-1 py-0.5 font-semibold"
+                />
+              </div>
               <div className="flex flex-col items-end gap-1">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-500">{totalBooked} /</span>
@@ -210,6 +294,35 @@ export default function SlotCapacityEditor({ slots }: { slots: Slot[] }) {
                   >
                     Save
                   </button>
+                  {delMsg?.text ? (
+                    <span className={`text-xs ${delMsg.ok ? 'text-green-600' : 'text-red-600'}`}>{delMsg.text}</span>
+                  ) : confirmDeleteSlot[slot.id] ? (
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-gray-500">Delete session?</span>
+                      <button
+                        onClick={() => handleDeleteSlot(slot.id)}
+                        disabled={deletingSlot[slot.id]}
+                        className="text-xs px-2 py-0.5 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                      >
+                        {deletingSlot[slot.id] ? '…' : 'Yes'}
+                      </button>
+                      <button
+                        onClick={() => setConfirmDeleteSlot(p => ({ ...p, [slot.id]: false }))}
+                        className="text-xs px-2 py-0.5 rounded text-gray-500 hover:text-gray-800"
+                      >
+                        No
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => hasActiveBookings
+                        ? setDeleteSlotMsg(p => ({ ...p, [slot.id]: { text: 'Cannot delete: this session has bookings', ok: false } }))
+                        : setConfirmDeleteSlot(p => ({ ...p, [slot.id]: true }))}
+                      className="text-xs px-2 py-0.5 rounded bg-red-50 text-red-600 hover:bg-red-100"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
                 {msg?.text && (
                   <span className={`text-xs ${msg.ok ? 'text-green-600' : 'text-red-600'}`}>
@@ -405,6 +518,66 @@ export default function SlotCapacityEditor({ slots }: { slots: Slot[] }) {
           </div>
         )
       })}
+
+      <div className="border rounded-lg p-4">
+        {!addSessionOpen ? (
+          <button
+            onClick={() => setAddSessionOpen(true)}
+            className="text-sm px-3 py-1 rounded bg-gray-100 text-gray-700 hover:bg-gray-200"
+          >
+            + Add session
+          </button>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">New session</p>
+            <div className="flex gap-2 flex-wrap items-center">
+              <input
+                type="time"
+                value={newStart}
+                onChange={e => setNewStart(e.target.value)}
+                className="text-sm border rounded px-2 py-1"
+              />
+              <span className="text-gray-400">–</span>
+              <input
+                type="time"
+                value={newEnd}
+                onChange={e => setNewEnd(e.target.value)}
+                className="text-sm border rounded px-2 py-1"
+              />
+              <input
+                type="number"
+                min={5}
+                max={100}
+                value={newCapacity}
+                onChange={e => {
+                  const v = parseInt(e.target.value, 10)
+                  if (!isNaN(v)) setNewCapacity(v)
+                }}
+                className="w-16 text-sm border rounded px-1 py-1 text-center"
+                title="Capacity"
+              />
+              <button
+                onClick={handleAddSession}
+                disabled={addingSession || !newStart || !newEnd}
+                className="text-sm px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+              >
+                {addingSession ? 'Adding…' : 'Add'}
+              </button>
+              <button
+                onClick={() => { setAddSessionOpen(false); setAddSessionMsg(null) }}
+                className="text-sm px-2 py-1 rounded text-gray-500 hover:text-gray-800"
+              >
+                Cancel
+              </button>
+            </div>
+            {addSessionMsg?.text && (
+              <span className={`text-xs ${addSessionMsg.ok ? 'text-green-600' : 'text-red-600'}`}>
+                {addSessionMsg.text}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

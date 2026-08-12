@@ -29,3 +29,16 @@ export async function createSlots(slots: Omit<Slot, 'id'>[]): Promise<Slot[]> {
   if (error) throw new Error(error.message)
   return data
 }
+
+export async function updateSlot(id: string, updates: Partial<Pick<Slot, 'start_time' | 'end_time' | 'capacity'>>): Promise<Slot> {
+  const sb = createServiceClient()
+  const { data, error } = await sb.from('slots').update(updates).eq('id', id).select().single()
+  if (error) throw new Error(error.message)
+  return data
+}
+
+export async function deleteSlot(id: string): Promise<void> {
+  const sb = createServiceClient()
+  const { error } = await sb.from('slots').delete().eq('id', id)
+  if (error) throw new Error(error.message)
+}
