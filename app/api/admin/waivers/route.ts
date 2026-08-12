@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { requireAdmin } from '@/lib/admin/auth'
-import { createWalkInWaiver, getWaiverByToken } from '@/lib/db/waivers'
+import { createWalkInWaiver, getWaiverByToken, markWaiverSigned, updateWaiver, deleteWaiver } from '@/lib/db/waivers'
 import { sendWaiverLinkEmail } from '@/lib/email'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL!
@@ -21,7 +21,28 @@ const resendSchema = z.object({
   name: z.string().optional(),
 })
 
-const schema = z.discriminatedUnion('action', [walkInSchema, resendSchema])
+const markSignedSchema = z.object({
+  action: z.literal('mark_signed'),
+  waiver_id: z.string().uuid(),
+  name: z.string().optional(),
+  email: z.string().email().optional(),
+  dob: z.string().optional(),
+})
+
+const editSchema = z.object({
+  action: z.literal('edit'),
+  waiver_id: z.string().uuid(),
+  name: z.string().optional(),
+  email: z.string().email().optional(),
+  dob: z.string().optional(),
+})
+
+const deleteSchema = z.object({
+  action: z.literal('delete'),
+  waiver_id: z.string().uuid(),
+})
+
+const schema = z.discriminatedUnion('action', [walkInSchema, resendSchema, markSignedSchema, editSchema, deleteSchema])
 
 export async function POST(req: NextRequest) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -38,15 +59,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ token: waiver.token, waiverUrl })
     }
 
-    // resend
-    const { waiver_token, email, name } = parsed.data
-    const waiver = await getWaiverByToken(waiver_token)
-    if (waiver.signed_at) return NextResponse.json({ error: 'Already signed' }, { status: 409 })
-    const eventTitle = waiver.event_title ?? 'Backyard Sauna session'
-    const eventDate = waiver.event_date ?? ''
-    const waiverUrl = `${SITE}/waiver/${waiver.token}`
-    await sendWaiverLinkEmail({ to: email, name, eventTitle, eventDate, waiverUrl })
-    return NextResponse.json({ waiverUrl })
+    if (parsed.data.action === 'resend') {
+      const { waiver_token, email, name } = parsed.data
+      const waiver = await getWaiverByToken(waiver_token)
+      if (waiver.signed_at) return NextResponse.json({ error: 'Already signed' }, { status: 409 })
+      const eventTitle = waiver.event_title ?? 'Backyard Sauna session'
+      const eventDate = waiver.event_date ?? ''
+      const waiverUrl = `${SITE}/waiver/${waiver.token}`
+      await sendWaiverLinkEmail({ to: email, name, eventTitle, eventDate, waiverUrl })
+      return NextResponse.json({ waiverUrl })
+    }
+
+    if (parsed.data.action === 'mark_signed') {
+      const { waiver_id, name, email, dob } = parsed.data
+      const waiver = await markWaiverSigned(waiver_id, { name, email, dob })
+      return NextResponse.json(waiver)
+    }
+
+    if (parsed.data.action === 'edit') {
+      const { waiver_id, name, email, dob } = parsed.data
+      const waiver = await updateWaiver(waiver_id, { name, email, dob })
+      return NextResponse.json(waiver)
+    }
+
+    // delete
+    await deleteWaiver(parsed.data.waiver_id)
+    return NextResponse.json({ ok: true })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Internal server error'
     console.error('[POST /api/admin/waivers]', err)
