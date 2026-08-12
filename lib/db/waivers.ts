@@ -41,6 +41,22 @@ export async function getWaiversByBookingId(bookingId: string): Promise<WaiverSi
   return data
 }
 
+export async function deleteUnsignedWaiverSignatures(bookingId: string, count: number): Promise<number> {
+  const sb = createServiceClient()
+  const { data: candidates, error: selErr } = await sb.from('waiver_signatures')
+    .select('id')
+    .eq('booking_id', bookingId)
+    .is('signed_at', null)
+    .limit(count)
+  if (selErr) throw new Error(selErr.message)
+  if (!candidates || candidates.length === 0) return 0
+
+  const ids = candidates.map(c => c.id)
+  const { error: delErr } = await sb.from('waiver_signatures').delete().in('id', ids)
+  if (delErr) throw new Error(delErr.message)
+  return ids.length
+}
+
 export async function createWalkInWaiver(eventTitle: string, eventDate: string): Promise<WaiverSignature> {
   const sb = createServiceClient()
   const { data, error } = await sb.from('waiver_signatures')

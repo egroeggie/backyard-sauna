@@ -109,6 +109,41 @@ export default function SlotCapacityEditor({ slots, eventId }: { slots: Slot[]; 
   const [cancelMsg, setCancelMsg] = useState<Record<string, { text: string; ok: boolean }>>({})
   const [confirmCancel, setConfirmCancel] = useState<Record<string, boolean>>({})
 
+  // Partial refund state: keyed by booking id
+  const [partialRefundOpen, setPartialRefundOpen] = useState<Record<string, boolean>>({})
+  const [partialRefundSpaces, setPartialRefundSpaces] = useState<Record<string, number>>({})
+  const [partialRefundSending, setPartialRefundSending] = useState<Record<string, boolean>>({})
+  const [partialRefundMsg, setPartialRefundMsg] = useState<Record<string, { text: string; ok: boolean }>>({})
+
+  async function handlePartialRefund(bookingId: string) {
+    const spaces = partialRefundSpaces[bookingId] ?? 1
+    setPartialRefundSending(p => ({ ...p, [bookingId]: true }))
+    try {
+      const res = await fetch(`/api/admin/bookings/${bookingId}/partial-refund`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ spaces }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setPartialRefundMsg(p => ({ ...p, [bookingId]: { text: typeof json.error === 'string' ? json.error : 'Error', ok: false } }))
+      } else {
+        const shortfallNote = json.waiversShortfall > 0
+          ? ` (${json.waiversShortfall} signed waiver(s) still attached — void manually on the Waivers page if needed)`
+          : ''
+        setPartialRefundMsg(p => ({
+          ...p,
+          [bookingId]: { text: `Refunded ${spaces} space(s) ✓ Now ${json.newSpaces}. Refresh to see it.${shortfallNote}`, ok: true },
+        }))
+        setPartialRefundOpen(p => ({ ...p, [bookingId]: false }))
+      }
+    } catch {
+      setPartialRefundMsg(p => ({ ...p, [bookingId]: { text: 'Network error', ok: false } }))
+    } finally {
+      setPartialRefundSending(p => ({ ...p, [bookingId]: false }))
+    }
+  }
+
   async function handleCancel(bookingId: string) {
     setCancelling(p => ({ ...p, [bookingId]: true }))
     setConfirmCancel(p => ({ ...p, [bookingId]: false }))
@@ -455,6 +490,57 @@ export default function SlotCapacityEditor({ slots, eventId }: { slots: Slot[]; 
                           </div>
                         </td>
                         <td className="py-2 text-right">
+                          {partialRefundMsg[b.id]?.text && (
+                            <div className="mb-1">
+                              <span className={`text-xs ${partialRefundMsg[b.id].ok ? 'text-green-600' : 'text-red-600'}`}>
+                                {partialRefundMsg[b.id].text}
+                              </span>
+                            </div>
+                          )}
+                          {b.stripe_payment_id && b.spaces > 1 && (
+                            partialRefundOpen[b.id] ? (
+                              <div className="flex items-center gap-1 justify-end mb-1">
+                                <span className="text-xs text-gray-500">Refund</span>
+                                <input
+                                  type="number"
+                                  min={1}
+                                  max={b.spaces - 1}
+                                  value={partialRefundSpaces[b.id] ?? 1}
+                                  onChange={e => {
+                                    const v = parseInt(e.target.value, 10)
+                                    if (!isNaN(v)) setPartialRefundSpaces(p => ({ ...p, [b.id]: v }))
+                                  }}
+                                  className="w-12 text-xs border rounded px-1 py-0.5 text-center"
+                                />
+                                <span className="text-xs text-gray-500">of {b.spaces} spaces</span>
+                                <button
+                                  onClick={() => handlePartialRefund(b.id)}
+                                  disabled={partialRefundSending[b.id]}
+                                  className="text-xs px-2 py-0.5 rounded bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                                >
+                                  {partialRefundSending[b.id] ? '…' : 'Refund'}
+                                </button>
+                                <button
+                                  onClick={() => setPartialRefundOpen(p => ({ ...p, [b.id]: false }))}
+                                  className="text-xs px-2 py-0.5 rounded text-gray-500 hover:text-gray-800"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="mb-1">
+                                <button
+                                  onClick={() => {
+                                    setPartialRefundOpen(p => ({ ...p, [b.id]: true }))
+                                    setPartialRefundSpaces(p => ({ ...p, [b.id]: 1 }))
+                                  }}
+                                  className="text-xs px-2 py-0.5 rounded bg-orange-50 text-orange-600 hover:bg-orange-100"
+                                >
+                                  Partial refund
+                                </button>
+                              </div>
+                            )
+                          )}
                           {cancelMsg[b.id]?.text ? (
                             <span className={`text-xs ${cancelMsg[b.id].ok ? 'text-green-600' : 'text-red-600'}`}>
                               {cancelMsg[b.id].text}

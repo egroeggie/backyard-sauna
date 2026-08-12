@@ -40,6 +40,19 @@ export async function getBookingsBySlotId(slotId: string): Promise<Booking[]> {
   return data
 }
 
+export async function reduceBookingSpaces(id: string, byN: number): Promise<Booking> {
+  const sb = createServiceClient()
+  const current = await getBookingById(id)
+  const { data, error } = await sb.from('bookings')
+    .update({ spaces: current.spaces - byN })
+    .eq('id', id)
+    .eq('spaces', current.spaces)
+    .select().single()
+  if (error) throw new Error(error.message)
+  if (!data) throw new Error('Booking spaces changed concurrently, please retry')
+  return data
+}
+
 export async function expirePendingBookings(): Promise<void> {
   const sb = createServiceClient()
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()

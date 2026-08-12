@@ -120,4 +120,28 @@ describe('SlotCapacityEditor', () => {
     })))
     await waitFor(() => expect(screen.getByText(/Payment link emailed/i)).toBeInTheDocument())
   })
+
+  it('shows the partial refund control only for bookings with a Stripe payment and more than 1 space', () => {
+    render(<SlotCapacityEditor slots={mockSlots as never} eventId="e1" />)
+    // b1 has stripe_payment_id and spaces: 2, so the control should appear
+    expect(screen.getByText('Partial refund')).toBeInTheDocument()
+  })
+
+  it('submits a partial refund with the correct payload', async () => {
+    const fetchSpy = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ ok: true, refundId: 're_1', newSpaces: 1, waiversRemoved: 1, waiversShortfall: 0 }),
+    })
+    global.fetch = fetchSpy as never
+    render(<SlotCapacityEditor slots={mockSlots as never} eventId="e1" />)
+
+    fireEvent.click(screen.getByText('Partial refund'))
+    fireEvent.click(screen.getByRole('button', { name: 'Refund' }))
+
+    await waitFor(() => expect(fetchSpy).toHaveBeenCalledWith('/api/admin/bookings/b1/partial-refund', expect.objectContaining({
+      method: 'POST',
+      body: JSON.stringify({ spaces: 1 }),
+    })))
+    await waitFor(() => expect(screen.getByText(/Refunded 1 space\(s\)/i)).toBeInTheDocument())
+  })
 })
