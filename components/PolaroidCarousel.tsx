@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react'
 
 const polaroids = [
-  { src: '/Polaroid2.JPG',  rotation: -1.63, tapeFlipped: false, objectPosition: 'center bottom' },
-  { src: '/carousel1.JPG', rotation: 2.8,   tapeFlipped: true,  objectPosition: '40% bottom'   },
-  { src: '/carousel2.JPG', rotation: -3.1,  tapeFlipped: false, objectPosition: 'center 20%'   },
-  { src: '/carousel3.JPG', rotation: 1.2,   tapeFlipped: true,  objectPosition: 'center top'   },
-  { src: '/carousel4.JPG', rotation: -2.4,  tapeFlipped: false, objectPosition: 'center top'   },
+  { src: '/Polaroid2.JPG',  rotation: -1.63, tapeFlipped: false, objectPosition: 'center bottom', width: 600, height: 900 },
+  { src: '/carousel1.JPG', rotation: 2.8,   tapeFlipped: true,  objectPosition: '40% bottom',   width: 900, height: 600 },
+  { src: '/carousel2.JPG', rotation: -3.1,  tapeFlipped: false, objectPosition: 'center 20%',   width: 600, height: 900 },
+  { src: '/carousel3.JPG', rotation: 1.2,   tapeFlipped: true,  objectPosition: 'center top',   width: 600, height: 900 },
+  { src: '/carousel4.JPG', rotation: -2.4,  tapeFlipped: false, objectPosition: 'center top',   width: 600, height: 900 },
 ]
 
 export function PolaroidCarousel() {
@@ -21,7 +21,7 @@ export function PolaroidCarousel() {
 
   return (
     <div className="relative w-full" style={{ height: '420px' }}>
-      {polaroids.map(({ src, rotation, tapeFlipped, objectPosition }, i) => {
+      {polaroids.map(({ src, rotation, tapeFlipped, objectPosition, width, height }, i) => {
         // diff: 0=current, 1=next, n-1=prev, else=hidden
         const diff = (i - current + n) % n
 
@@ -102,6 +102,10 @@ export function PolaroidCarousel() {
                 <img
                   src={src}
                   alt="The sauna"
+                  width={width}
+                  height={height}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={i === 0 ? 'high' : undefined}
                   className="absolute inset-0 w-full h-full object-cover"
                   style={{ objectPosition }}
                 />
