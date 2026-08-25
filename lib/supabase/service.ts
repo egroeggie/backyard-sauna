@@ -1,14 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 
-// NOTE: tables currently live in the "public" schema in production. A prior
-// commit tried to move them into a private "app" schema for better isolation,
-// but that migration was never actually run against the live database, so
-// pointing this client at schema "app" broke every build (Error: Invalid
-// schema: app). Reverted to "public" until the real migration is applied
-// deliberately, on its own, with the data move verified beforehand.
+// Application tables live in the private "app" schema (see
+// supabase/migrations/006_app_schema_isolation.sql), not "public" — this
+// isolates them from the anon/authenticated PostgREST roles at the grant
+// level. Requires "app" to be added to Exposed Schemas in the Supabase
+// dashboard (Settings -> API) for this to work; without that step every
+// request from this client fails with "Invalid schema: app".
 export function createServiceClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { db: { schema: 'app' } }
   )
 }
