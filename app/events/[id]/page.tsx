@@ -12,7 +12,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
   let event, slots
   try { event = await getEventById(id); slots = await getSlotsByEventId(id) }
   catch { notFound() }
-  if (!event.is_published) notFound()
+  if (!event.is_published || event.archived) notFound()
 
   const price = (event.price_pence / 100).toFixed(0)
   const date = new Date(event.date + 'T00:00:00').toLocaleDateString('en-GB', {

@@ -1,5 +1,6 @@
 const mockOrder = jest.fn()
 const mockEq = jest.fn()
+const mockEq2 = jest.fn()
 const mockSingle = jest.fn()
 const mockSelect = jest.fn()
 
@@ -12,21 +13,26 @@ jest.mock('@/lib/supabase/service', () => ({
 import { getPublishedEvents, getEventById } from '@/lib/db/events'
 
 describe('getPublishedEvents', () => {
-  it('filters by is_published and orders by date', async () => {
+  it('filters by is_published and archived, and orders by date', async () => {
     mockSelect.mockReturnValue({
       eq: mockEq.mockReturnValue({
-        order: mockOrder.mockResolvedValue({ data: [], error: null }),
+        eq: mockEq2.mockReturnValue({
+          order: mockOrder.mockResolvedValue({ data: [], error: null }),
+        }),
       }),
     })
     await getPublishedEvents()
     expect(mockEq).toHaveBeenCalledWith('is_published', true)
+    expect(mockEq2).toHaveBeenCalledWith('archived', false)
     expect(mockOrder).toHaveBeenCalledWith('date', { ascending: true })
   })
 
   it('throws on DB error', async () => {
     mockSelect.mockReturnValue({
       eq: mockEq.mockReturnValue({
-        order: mockOrder.mockResolvedValue({ data: null, error: { message: 'fail' } }),
+        eq: mockEq2.mockReturnValue({
+          order: mockOrder.mockResolvedValue({ data: null, error: { message: 'fail' } }),
+        }),
       }),
     })
     await expect(getPublishedEvents()).rejects.toThrow('fail')

@@ -4,7 +4,7 @@ import type { Event } from '@/types'
 export async function getPublishedEvents(): Promise<Event[]> {
   const sb = createServiceClient()
   const { data, error } = await sb.from('events').select('*')
-    .eq('is_published', true).order('date', { ascending: true })
+    .eq('is_published', true).eq('archived', false).order('date', { ascending: true })
   if (error) throw new Error(error.message)
   return data
 }
