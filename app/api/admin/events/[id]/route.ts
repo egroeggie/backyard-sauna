@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { requireAdmin } from '@/lib/admin/auth'
 import { createServiceClient } from '@/lib/supabase/service'
-import { updateEvent, deleteEvent } from '@/lib/db/events'
+import { updateEvent, deleteEvent, eventHasHistory } from '@/lib/db/events'
 
 const schema = z.object({
   title: z.string().min(1).optional(),
@@ -10,6 +10,7 @@ const schema = z.object({
   location: z.string().min(1).optional(),
   price_pence: z.number().int().positive().optional(),
   is_published: z.boolean().optional(),
+  archived: z.boolean().optional(),
   capacity: z.number().int().min(5).max(100).optional(),
 })
 
@@ -39,6 +40,18 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!await requireAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const { id } = await params
-  await deleteEvent(id)
-  return new NextResponse(null, { status: 204 })
+
+  try {
+    if (await eventHasHistory(id)) {
+      return NextResponse.json(
+        { error: 'Cannot delete: this event has bookings or signed waivers. Archive it instead.' },
+        { status: 409 }
+      )
+    }
+    await deleteEvent(id)
+    return new NextResponse(null, { status: 204 })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Internal server error'
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
 }

@@ -9,6 +9,7 @@ export interface Event {
   image_url: string | null
   price_pence: number
   is_published: boolean
+  archived: boolean
   created_at: string
 }
 

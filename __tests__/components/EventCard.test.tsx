@@ -5,7 +5,7 @@ import type { Event } from '@/types'
 const mockEvent: Event = {
   id: 'e1', title: 'Summer Pop-up', date: '2026-07-15',
   location: "Robinson's Brewery Yard", description: 'A great session.',
-  image_url: null, price_pence: 1400, is_published: true, created_at: '2026-01-01T00:00:00Z',
+  image_url: null, price_pence: 1400, is_published: true, archived: false, created_at: '2026-01-01T00:00:00Z',
 }
 
 describe('EventCard', () => {
