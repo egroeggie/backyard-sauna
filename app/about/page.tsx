@@ -15,7 +15,7 @@ export default function AboutPage() {
           <p>Sauna culture is exploding in the uk, but unless you&apos;re planning on remortgaging your house to visit a wellness space, the next best thing is a underpowered Bannatynes broom-cupboard. Both feel like an insult to the 2000 year old tradition of getting hot and sweaty.</p>
           <p>We&apos;re here to fix that...</p>
           <p>We started with wood fired Finnish sauna tents, cold water showers, and good chat, pitching up in car parks and backyards around Stockport to get the word out.</p>
-          <p>The pop-ups are paused for now. Everything goes into a permanent home in the heart of Stockport: a proper sauna and cold plunge, open all year, and priced so everyone can come.</p>
+          <p>The pop-ups are paused for now. Everything goes into a permanent home in the heart of Stockport: a proper sauna and ice baths, open all year, and priced so everyone can come.</p>
         </div>
 
         <div className="mt-6 w-full">

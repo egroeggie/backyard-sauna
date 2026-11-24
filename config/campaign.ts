@@ -27,7 +27,7 @@ export const campaign = {
   id: 'permanent-venue',
   currency: 'GBP',
   milestones: [
-    { amount: 20000, label: 'The doors open', blurb: 'Minimum to get a permanent site open.' },
+    { amount: 20000, label: 'The doors open', blurb: 'The minimum to open a permanent site.' },
     { amount: 30000, label: 'The full build', blurb: 'Our target: sauna, ice baths, changing space and fit-out.' },
     { amount: 40000, label: 'The cold plunge', blurb: 'Stretch goal: a proper cold plunge from day one.' },
   ] satisfies Milestone[],
