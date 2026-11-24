@@ -10,7 +10,7 @@ export const revalidate = 300
 
 export const metadata: Metadata = {
   title: 'Back the campaign | Backyard Sauna',
-  description: "Help build Stockport's permanent community sauna and cold plunge. See live progress towards the target.",
+  description: "Help build Stockport's permanent community sauna and ice baths. See live progress towards the target.",
 }
 
 async function ProgressAndMilestones() {
@@ -80,11 +80,11 @@ export default function TakepartPage() {
           </p>
           <p>
             The pop-ups are paused for winter, and everything now goes into a permanent home in Stockport town
-            centre: a proper sauna and cold plunge / ice baths, open all year, and priced so everyone can come.
+            centre: a proper sauna and ice baths, open all year, and priced so everyone can come.
           </p>
           <p>
             We&apos;re not venture-backed. We&apos;re not a wellness brand. We&apos;re two people from Stockport
-            who think this place deserves a cold plunge.
+            who think this place deserves a proper sauna.
           </p>
           <p>Every pound goes toward the permanent venue. Rewards for the early ones.</p>
         </div>
