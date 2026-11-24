@@ -1,4 +1,5 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
+import { popups } from '@/config/campaign'
 import { getEventById } from '@/lib/db/events'
 import { getSlotsByEventId } from '@/lib/db/slots'
 import { BookingForm } from '@/components/BookingForm'
@@ -8,6 +9,8 @@ import Link from 'next/link'
 export const revalidate = 30
 
 export default async function EventPage({ params }: { params: Promise<{ id: string }> }) {
+  // Pop-ups paused: no event page (or its booking form) is reachable.
+  if (popups.paused) redirect('/events')
   const { id } = await params
   let event, slots
   try { event = await getEventById(id); slots = await getSlotsByEventId(id) }

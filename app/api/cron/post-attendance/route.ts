@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { popups } from '@/config/campaign'
 import { createServiceClient } from '@/lib/supabase/service'
 import { getBookingsBySlotId } from '@/lib/db/bookings'
 import { getSlotsByEventId } from '@/lib/db/slots'
@@ -7,6 +8,11 @@ import { sendPostAttendanceEmail } from '@/lib/email'
 export async function GET(req: NextRequest) {
   if (req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // Pop-ups paused: don't email anyone about events that won't happen.
+  if (popups.paused) {
+    return NextResponse.json({ emailsSent: 0, skipped: 'popups-paused' })
   }
 
   const sb = createServiceClient()

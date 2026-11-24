@@ -6,6 +6,11 @@ jest.mock('@/lib/db/bookings')
 jest.mock('@/lib/db/slots')
 jest.mock('@/lib/db/events')
 jest.mock('@/lib/stripe')
+// These tests cover the booking flow for when pop-ups resume; the pause itself is tested in campaign.test.ts.
+jest.mock('@/config/campaign', () => {
+  const actual = jest.requireActual('@/config/campaign')
+  return { ...actual, popups: { ...actual.popups, paused: false } }
+})
 
 import { POST } from '@/app/api/bookings/route'
 import { createPendingBooking } from '@/lib/db/bookings'

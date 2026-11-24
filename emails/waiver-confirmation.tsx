@@ -10,7 +10,7 @@ export function WaiverConfirmationEmail({ name, eventTitle, eventDate }: Props) 
         <Container style={{ backgroundColor: '#fff', padding: '32px', borderRadius: '8px' }}>
           <Heading style={{ color: '#1A1A2E' }}>Waiver signed.</Heading>
           <Text>Hi {name},</Text>
-          <Text>You're all set — your waiver for <strong>{eventTitle}</strong> on {eventDate} has been signed. No further action needed.</Text>
+          <Text>You&apos;re all set — your waiver for <strong>{eventTitle}</strong> on {eventDate} has been signed. No further action needed.</Text>
           <Text style={{ color: '#666', fontSize: '14px' }}>— The Backyard Sauna team</Text>
         </Container>
       </Body>
