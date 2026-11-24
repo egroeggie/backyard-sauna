@@ -72,7 +72,8 @@ export const tierNotes =
  * Leave as `null` until George & Cam confirm the refund or rollover policy.
  * While null: previews show a visible TODO, production shows nothing.
  */
-export const refundPolicy: string | null = null
+export const refundPolicy: string | null =
+  "You get your money back. If we decide the venue isn't going ahead, we'll tell every backer and refund you in full within 30 days, minus the card processing fee Stripe charges us, which Stripe doesn't return when we refund. We won't keep a penny."
 
 /** Pop-up Sauna Socials pause. While `paused` is true no public page or API takes bookings. */
 export const popups = {
