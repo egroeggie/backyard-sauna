@@ -3,7 +3,7 @@
 Everything you can change without touching code is in **`config/campaign.ts`**: milestones, primary target,
 offline adjustment, start date, tiers, tier notes, refund policy and the pop-up pause switch.
 
-## 1. Go live in Stripe (you run this; I haven't touched live mode)
+## 1. (Optional) Named products in live Stripe (you run this; I haven't touched live mode)
 
 Test mode is already set up (7 products and prices, tagged `metadata.campaign = permanent-venue`, `metadata.tier = <id>`).
 
@@ -25,8 +25,9 @@ Needs Node 22.18 or later. It is safe to run more than once. It never deletes an
 - **Old tiers (£5/£15/£30/£50/custom):** these were never Products or Prices in Stripe. The old checkout built an
   inline price for each payment, and Stripe archives those automatically. So there is nothing to archive, and the
   script confirms that. Old payments are untouched.
-- Do this **before** merging. Until the live prices exist, live checkout shows "Checkout is not set up yet"
-  (it never charges the wrong amount, because the price must match `config/campaign.ts`).
+- **Optional.** Until the live prices exist, checkout uses an inline GBP price at the amount in
+  `config/campaign.ts` (like the old checkout), still tagged `campaign`/`tier`, so totals are unaffected.
+  Creating them just gives you named products in the Stripe dashboard.
 
 ## 2. Check the live total yourself
 

@@ -99,17 +99,26 @@ describe('POST /api/contribute', () => {
     expect((await contribute(req({ tier_id: 'platinum', email: 'a@b.com', anonymous: true }))).status).toBe(400)
   })
 
-  it('refuses checkout when Stripe and config disagree on the price', async () => {
+  it('falls back to an inline GBP price at the config amount when Stripe has no matching price', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {})
+    // No price at all (e.g. live prices not created yet)
+    mockPrices.mockResolvedValue({ data: [] })
+    expect((await contribute(req({ tier_id: 'warm-up', email: 'a@b.com', anonymous: true }))).status).toBe(200)
+    // Price exists but disagrees with config: config wins
     mockPrices.mockResolvedValue({ data: [{ id: 'price_old', unit_amount: 1500, currency: 'gbp', product: 'p' }] })
-    const errSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
-    const res = await contribute(req({ tier_id: 'warm-up', email: 'a@b.com', anonymous: true }))
-    errSpy.mockRestore()
-    expect(res.status).toBe(503)
-    expect(mockCreate).not.toHaveBeenCalled()
+    expect((await contribute(req({ tier_id: 'warm-up', email: 'a@b.com', anonymous: true }))).status).toBe(200)
+    warn.mockRestore()
+    for (const call of mockCreate.mock.calls) {
+      const item = call[0].line_items[0]
+      expect(item.price).toBeUndefined()
+      expect(item.price_data).toMatchObject({ currency: 'gbp', unit_amount: 2000, product_data: { metadata: { campaign: 'permanent-venue', tier: 'warm-up' } } })
+      expect(call[0].metadata).toMatchObject({ campaign: 'permanent-venue', tier: 'warm-up' })
+    }
   })
 })
 
 describe('pop-up bookings while paused', () => {
+  beforeEach(() => jest.clearAllMocks())
   it('POST /api/bookings returns 410 and creates nothing', async () => {
     const res = await book(new NextRequest('http://localhost/api/bookings', { method: 'POST', body: '{}' }))
     expect(res.status).toBe(410)

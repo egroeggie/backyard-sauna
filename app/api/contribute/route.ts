@@ -45,22 +45,40 @@ export async function POST(req: NextRequest) {
     const tier = getTier(v.tier_id)!
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL!
 
-    const price = await findTierPrice(stripe, tier.id)
-    if (!price) {
-      console.error(`[POST /api/contribute] No active Stripe price for tier ${tier.id}. Run scripts/stripe-campaign-tiers.mjs`)
-      return NextResponse.json({ error: 'Checkout is not set up yet. Please try again later.' }, { status: 503 })
+    // Amount always comes from config (custom: from the backer), never from Stripe or the browser.
+    const amountPence = tier.amount === null ? v.amount_pence! : tier.amount * 100
+
+    // Use the tier's Stripe Price when it exists and matches config. Otherwise (e.g. live
+    // prices not created yet) fall back to an inline GBP price, as the old checkout did.
+    // Either way the payment is tagged campaign/tier, so the progress total counts it.
+    const price = await findTierPrice(stripe, tier.id).catch(err => {
+      console.error(`[POST /api/contribute] price lookup failed for ${tier.id}`, err)
+      return null
+    })
+    const usable = !!price && price.currency === 'gbp' && (tier.amount === null || price.unit_amount === amountPence)
+    if (price && !usable) {
+      console.warn(`[POST /api/contribute] Stripe price for ${tier.id} (${price.unit_amount} ${price.currency}) does not match config (£${tier.amount}); using inline price`)
     }
 
     let lineItem: NonNullable<Stripe.Checkout.SessionCreateParams["line_items"]>[number]
-    if (tier.amount === null) {
-      const product = typeof price.product === 'string' ? price.product : price.product.id
-      lineItem = { price_data: { currency: 'gbp', product, unit_amount: v.amount_pence! }, quantity: 1 }
+    if (usable && tier.amount !== null) {
+      lineItem = { price: price!.id, quantity: 1 }
+    } else if (usable) {
+      const product = typeof price!.product === 'string' ? price!.product : price!.product.id
+      lineItem = { price_data: { currency: 'gbp', product, unit_amount: amountPence }, quantity: 1 }
     } else {
-      if (price.unit_amount !== tier.amount * 100 || price.currency !== 'gbp') {
-        console.error(`[POST /api/contribute] Stripe price for ${tier.id} (${price.unit_amount} ${price.currency}) does not match config (£${tier.amount})`)
-        return NextResponse.json({ error: 'Checkout is not set up yet. Please try again later.' }, { status: 503 })
+      lineItem = {
+        price_data: {
+          currency: 'gbp',
+          unit_amount: amountPence,
+          product_data: {
+            name: `Backyard Sauna: ${tier.name}`,
+            description: tier.reward,
+            metadata: { campaign: campaign.id, tier: tier.id },
+          },
+        },
+        quantity: 1,
       }
-      lineItem = { price: price.id, quantity: 1 }
     }
 
     // Tagged on both the session and the payment so totals never depend on one object.
