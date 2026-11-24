@@ -80,7 +80,7 @@ export function ReminderEmail({ name, eventTitle, eventDate, slotStartTime, slot
               {/* What to bring */}
               <div style={styles.box}>
                 <Text style={styles.boxLabel}>What to bring</Text>
-                <Text style={styles.row}><strong>Towel</strong> — you'll need it</Text>
+                <Text style={styles.row}><strong>Towel</strong> — you&apos;ll need it</Text>
                 <Text style={styles.row}><strong>Flip flops</strong> — the ground gets hot</Text>
                 <Text style={styles.row}><strong>Swimwear</strong> — mandatory on site</Text>
                 <Text style={styles.rowLast}><strong>Water bottle</strong> — stay hydrated, especially between rounds</Text>
@@ -90,9 +90,9 @@ export function ReminderEmail({ name, eventTitle, eventDate, slotStartTime, slot
               <div style={styles.box}>
                 <Text style={styles.boxLabel}>Getting here</Text>
                 <Text style={styles.row}><strong>Address:</strong> The Apple Core, 26 Middle Hillgate, Stockport SK1 3AY</Text>
-                <Text style={styles.row}>We're set up out the back — come through the front, the team will be there from 10</Text>
+                <Text style={styles.row}>We&apos;re set up out the back — come through the front, the team will be there from 10</Text>
                 <Text style={styles.row}><strong>Arrive 15 minutes before your slot</strong> — even earlier if you want to sit and have something to drink</Text>
-                <Text style={styles.row}>There's no indoor changing. We have zip-up cubicles to change in our marquee before your session</Text>
+                <Text style={styles.row}>There&apos;s no indoor changing. We have zip-up cubicles to change in our marquee before your session</Text>
                 <Text style={styles.rowLast}>A member of the team will greet you, check your waiver, and talk you through the flow</Text>
               </div>
 
@@ -119,7 +119,7 @@ export function ReminderEmail({ name, eventTitle, eventDate, slotStartTime, slot
             {/* Footer */}
             <Section style={styles.footer}>
               <Text style={styles.footerText}>
-                You're receiving this because you have a booking at backyard-sauna.com.
+                You&apos;re receiving this because you have a booking at backyard-sauna.com.
               </Text>
             </Section>
 

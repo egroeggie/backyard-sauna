@@ -9,16 +9,16 @@ export default function SupportPage() {
         <h1 className="font-display text-[#edea5a] text-[36px] leading-[50px] text-center">Support the Project</h1>
         <div className="text-[#edea5a] font-light text-[15px] leading-relaxed text-center space-y-6">
           <p>
-            Every penny from our pop-ups goes directly towards securing a permanent site within the heart of Stockport.
+            Every penny goes directly towards securing a permanent site within the heart of Stockport. The pop-ups are paused while we put everything into it.
           </p>
           <p>
             Our mission is to create a social hub, with traditional sauna at the core, that serves its community and contributes to the blossoming growth of such a beautiful part of Greater Manchester.
           </p>
           <p>
-            Everyone should be able to access sauna, and it shouldn't break the bank.
+            Everyone should be able to access sauna, and it shouldn&apos;t break the bank.
           </p>
           <p>
-            Stay in the loop — join our mailing list for event announcements and updates.
+            Stay in the loop — join our mailing list for campaign news and updates.
           </p>
         </div>
         <Link

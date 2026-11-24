@@ -5,6 +5,7 @@ import { getSlotById, getSlotsByEventId } from '@/lib/db/slots'
 import { getEventById } from '@/lib/db/events'
 import { createCheckoutSession } from '@/lib/stripe'
 import { subscribeToMailchimp } from '@/lib/mailchimp'
+import { popups } from '@/config/campaign'
 
 const schema = z.object({
   slot_id: z.string().uuid(),
@@ -16,6 +17,9 @@ const schema = z.object({
 })
 
 export async function POST(req: NextRequest) {
+  if (popups.paused) {
+    return NextResponse.json({ error: 'Pop-up bookings are paused.' }, { status: 410 })
+  }
   try {
     const parsed = schema.safeParse(await req.json())
     if (!parsed.success) return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })

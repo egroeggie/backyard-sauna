@@ -12,6 +12,7 @@ jest.mock('@/lib/db/waivers')
 jest.mock('@/lib/db/slots')
 jest.mock('@/lib/db/events')
 jest.mock('@/lib/email')
+jest.mock('next/cache', () => ({ unstable_cache: (fn: unknown) => fn, revalidateTag: jest.fn() }))
 
 import { POST } from '@/app/api/stripe/webhook/route'
 import { stripe } from '@/lib/stripe'
@@ -21,6 +22,7 @@ import { getSlotById } from '@/lib/db/slots'
 import { getEventById } from '@/lib/db/events'
 import { sendConfirmationEmail } from '@/lib/email'
 import { NextRequest } from 'next/server'
+import { revalidateTag } from 'next/cache'
 
 const mockConstructEvent = stripe.webhooks.constructEvent as jest.Mock
 
@@ -118,6 +120,26 @@ describe('POST /api/stripe/webhook', () => {
       const res = await POST(makeRequest())
       expect(res.status).toBe(200)
       expect(cancelBooking).toHaveBeenCalledWith('b2')
+    })
+  })
+
+  describe('campaign contributions', () => {
+    it.each([
+      [{ campaign: 'permanent-venue', tier: 'warm-up' }],
+      [{ tier_name: 'Deep heat' }],
+    ])('acknowledges %o with 200 and refreshes progress, without touching bookings', async (metadata) => {
+      mockConstructEvent.mockReturnValue({ type: 'checkout.session.completed', data: { object: { metadata, payment_intent: 'pi_x' } } })
+      const res = await POST(makeRequest())
+      expect(res.status).toBe(200)
+      expect(revalidateTag).toHaveBeenCalledWith('campaign-progress', 'max')
+      expect(confirmBooking).not.toHaveBeenCalled()
+    })
+
+    it('refreshes progress on refunds', async () => {
+      mockConstructEvent.mockReturnValue({ type: 'charge.refunded', data: { object: {} } })
+      const res = await POST(makeRequest())
+      expect(res.status).toBe(200)
+      expect(revalidateTag).toHaveBeenCalledWith('campaign-progress', 'max')
     })
   })
 })

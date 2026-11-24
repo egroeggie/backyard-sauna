@@ -1,8 +1,20 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
+import { CampaignProgress, CampaignProgressSkeleton } from '@/components/CampaignProgress'
+import { getCampaignProgress } from '@/lib/campaign/cached'
+
+export const revalidate = 300
+
+async function CompactProgress() {
+  const progress = await getCampaignProgress()
+  // On the homepage, hide the bar entirely if Stripe is unavailable.
+  if (!progress) return null
+  return <CampaignProgress progress={progress} variant="compact" />
+}
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#1f3e2a] flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-[#1f3e2a] flex flex-col items-center justify-center py-10">
       <div className="flex flex-col items-center gap-10 max-w-[440px] w-full px-6">
 
         <h1
@@ -34,7 +46,13 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div style={{ animation: 'fade-in-up 0.6s ease-out 0.3s both' }}>
+        <div className="w-full min-h-[146px]" style={{ animation: 'fade-in-up 0.6s ease-out 0.3s both' }}>
+          <Suspense fallback={<CampaignProgressSkeleton variant="compact" />}>
+            <CompactProgress />
+          </Suspense>
+        </div>
+
+        <div style={{ animation: 'fade-in-up 0.6s ease-out 0.45s both' }}>
           <Link
             href="/about"
             className="flex items-center gap-3 font-display text-[#edea5a] text-[24px] hover:opacity-80 transition-opacity"

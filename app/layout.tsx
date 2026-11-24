@@ -7,7 +7,7 @@ const dokdo = Dokdo({ subsets: ['latin'], weight: '400', variable: '--font-dokdo
 
 export const metadata: Metadata = {
   title: 'Backyard Sauna',
-  description: 'Community pop-up saunas in Stockport.',
+  description: 'Building a permanent community sauna and cold plunge in Stockport town centre. Back the campaign.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
